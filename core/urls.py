@@ -1,6 +1,6 @@
 from django.urls import path
 from django.shortcuts import redirect
-from .views import home, LoginView, SignupView, logout_view
+from .views import MapView, home, LoginView, SignupView, logout_view
 
 app_name = "core"
 
@@ -10,4 +10,5 @@ urlpatterns = [
     path("signup/", SignupView.as_view(), name="signup"),
     path("home/", home, name="home"),
     path("logout/", logout_view, name="logout"),
+    path("mapa/", MapView.as_view(), name="map"),
 ]

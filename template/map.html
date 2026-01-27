@@ -3,14 +3,18 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>ADAY</title>
+    <title>ADAY | Mapa</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
     <!-- CSS -->
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/map.css' %}">
 </head>
 <body>
 
@@ -18,7 +22,7 @@
 <div class="side-menu" id="sideMenu">
     <h3>ADAY</h3>
     <a href="{% url 'core:home' %}">🏠 Inicio</a>
-    <a href="#">🗺️ Mapa</a>
+    <a href="{% url 'core:map' %}">🗺️ Mapa</a>
     <a href="#">❤️ Favoritos</a>
     <a href="#">👤 Perfil</a>
     <a href="{% url 'core:logout' %}">🚪 Cerrar sesión</a>
@@ -36,55 +40,43 @@
 <div class="search-container">
     <div class="search-box">
         <i class="fas fa-search"></i>
-        <input type="text" placeholder="Buscar destinos...">
+        <input type="text" id="mapSearch" placeholder="Buscar destinos...">
     </div>
 </div>
 
 <!-- CONTENT -->
-<div class="content">
-    <h3>Sitios que podrían interesarte</h3>
+<div class="content map-content">
 
-    <div class="cards">
-
-        <div class="card">
-            <img src="https://images.unsplash.com/photo-1505678261036-a3fcc5e884ee">
-            <div class="heart"><i class="fa-regular fa-heart"></i></div>
-            <div class="card-body">
-                <h4>Machu Picchu</h4>
-            </div>
-        </div>
-
-        <div class="card">
-            <img src="https://images.unsplash.com/photo-1505761671935-60b3a7427bad">
-            <div class="heart"><i class="fa-regular fa-heart"></i></div>
-            <div class="card-body">
-                <h4>Cartagena</h4>
-            </div>
-        </div>
-
-        <div class="card">
-            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e">
-            <div class="heart"><i class="fa-regular fa-heart"></i></div>
-            <div class="card-body">
-                <h4>Torres del Paine</h4>
-            </div>
-        </div>
-
+    <!-- Loading -->
+    <div class="map-loading" id="mapLoading">
+        <div class="spinner"></div>
+        <p>Cargando mapa...</p>
     </div>
+
+    <!-- MAP -->
+    <div id="map"></div>
+
+    <!-- Map Controls -->
+    <div class="map-controls">
+        <button id="zoomIn">➕</button>
+        <button id="zoomOut">➖</button>
+        <button id="myLocation">📍</button>
+    </div>
+
 </div>
 
-<!-- FLOAT BUTTON -->
+<!-- FLOAT BUTTON (reutilizado) -->
 <div class="float-btn">
     <i class="fas fa-camera"></i>
 </div>
 
 <!-- BOTTOM NAV -->
 <div class="bottom-nav">
-    <a href="{% url 'core:home' %}" class="active">
+    <a href="{% url 'core:home' %}">
         <i class="fa-regular fa-compass"></i>
         Explorar
     </a>
-    <a href="{% url 'core:map' %}">
+    <a href="{% url 'core:map' %}" class="active">
         <i class="fa-regular fa-map"></i>
         Mapa
     </a>
@@ -99,7 +91,9 @@
 </div>
 
 <!-- JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="{% static 'js/home.js' %}"></script>
+<script src="{% static 'js/map.js' %}"></script>
 
 </body>
 </html>

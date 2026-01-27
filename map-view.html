@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADAY - Mapa</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        /* Search Bar */
+        .search-container {
+            padding: 1rem 1.5rem;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            background: #f5f7fa;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus-within {
+            border-color: #2196F3;
+            background: white;
+        }
+
+        .search-icon {
+            color: #666;
+            font-size: 1.2rem;
+        }
+
+        .search-input {
+            border: none;
+            background: transparent;
+            flex: 1;
+            font-size: 1rem;
+            outline: none;
+            color: #333;
+        }
+
+        .search-input::placeholder {
+            color: #999;
+        }
+
+        /* Map Container */
+        .map-wrapper {
+            flex: 1;
+            position: relative;
+            background: #e8f0f7;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* Map Info Overlay */
+        .map-info {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 400;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .map-info.show {
+            opacity: 1;
+        }
+
+        .map-icon {
+            font-size: 5rem;
+            color: #2196F3;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 4px 10px rgba(33, 150, 243, 0.3));
+        }
+
+        .map-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .map-subtitle {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        /* Custom Marker Popup */
+        .custom-popup {
+            font-family: inherit;
+        }
+
+        .popup-content {
+            padding: 0.5rem;
+            min-width: 200px;
+        }
+
+        .popup-image {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 0.8rem;
+        }
+
+        .popup-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 0.4rem;
+        }
+
+        .popup-location {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .popup-category {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.6rem;
+        }
+
+        .category-green {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        }
+
+        .category-orange {
+            background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+        }
+
+        .category-blue {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+        }
+
+        .popup-price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .popup-btn {
+            width: 100%;
+            padding: 0.7rem;
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .popup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+        }
+
+        /* Photo Button */
+        .photo-btn {
+            position: absolute;
+            bottom: 5.5rem;
+            right: 1.5rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(33, 150, 243, 0.4);
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+
+        .photo-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 30px rgba(33, 150, 243, 0.6);
+        }
+
+        /* Map Controls */
+        .map-controls {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            z-index: 999;
+        }
+
+        .control-btn {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border: none;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .control-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            background: white;
+            padding: 0.8rem 0;
+            box-shadow: 0 -2px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            position: relative;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+        }
+
+        .nav-item:hover {
+            background: #f5f7fa;
+        }
+
+        .nav-item.active {
+            color: #2196F3;
+        }
+
+        .nav-item.active .nav-icon {
+            color: #2196F3;
+        }
+
+        .nav-icon {
+            font-size: 1.4rem;
+            color: #666;
+            transition: color 0.3s ease;
+        }
+
+        .nav-label {
+            font-size: 0.85rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .nav-item.active .nav-label {
+            color: #2196F3;
+            font-weight: 600;
+        }
+
+        /* Loading State */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 500;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2196F3;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .photo-btn {
+                bottom: 5rem;
+                right: 1rem;
+                width: 55px;
+                height: 55px;
+            }
+        }
+
+        /* Custom Leaflet Styles */
+        .leaflet-popup-content-wrapper {
+            border-radius: 12px;
+            padding: 0;
+        }
+
+        .leaflet-popup-content {
+            margin: 0;
+            width: auto !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">ADAY</div>
+        <button class="menu-btn" aria-label="Menu">☰</button>
+    </header>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" placeholder="Buscar destinos...">
+        </div>
+    </div>
+
+    <!-- Map Wrapper -->
+    <div class="map-wrapper">
+        <!-- Loading State -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div class="loading-text">Cargando mapa...</div>
+        </div>
+
+        <!-- Map Container -->
+        <div id="map"></div>
+
+        <!-- Map Controls -->
+        <div class="map-controls">
+            <button class="control-btn" id="zoomIn" title="Acercar">➕</button>
+            <button class="control-btn" id="zoomOut" title="Alejar">➖</button>
+            <button class="control-btn" id="myLocation" title="Mi ubicación">📍</button>
+        </div>
+
+        <!-- Photo Button -->
+        <button class="photo-btn" aria-label="Tomar foto">📷</button>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <div class="nav-item">
+            <span class="fa-regular fa-compass"></span>
+            <span class="nav-label">Explorar</span>
+        </div>
+        <div class="nav-item active">
+            <span class="nav-icon">🗺️</span>
+            <span class="nav-label">Mapa</span>
+        </div>
+        <div class="nav-item">
+            <span class="nav-icon">❤️</span>
+            <span class="nav-label">Favoritos</span>
+        </div>
+        <div class="nav-item">
+            <span class="nav-icon">👤</span>
+            <span class="nav-label">Perfil</span>
+        </div>
+    </nav>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Destinations data
+        const destinations = [
+            {
+                name: 'Machu Picchu',
+                location: 'Cusco, Perú',
+                lat: -13.1631,
+                lng: -72.5450,
+                category: 'Aventura',
+                categoryClass: 'category-green',
+                price: '$850',
+                image: 'https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=400&h=300&fit=crop'
+            },
+            {
+                name: 'Cartagena',
+                location: 'Colombia',
+                lat: 10.3910,
+                lng: -75.4794,
+                category: 'Cultural',
+                categoryClass: 'category-orange',
+                price: '$650',
+                image: 'https://images.unsplash.com/photo-1568632234157-ce7aecd03d0d?w=400&h=300&fit=crop'
+            },
+            {
+                name: 'Torres del Paine',
+                location: 'Chile',
+                lat: -51.0,
+                lng: -73.0,
+                category: 'Naturaleza',
+                categoryClass: 'category-blue',
+                price: '$920',
+                image: 'https://images.unsplash.com/photo-1519217845742-a6c422e0d99e?w=400&h=300&fit=crop'
+            },
+            {
+                name: 'Islas Galápagos',
+                location: 'Ecuador',
+                lat: -0.9538,
+                lng: -90.9656,
+                category: 'Vida Silvestre',
+                categoryClass: 'category-green',
+                price: '$1,200',
+                image: 'https://images.unsplash.com/photo-1609137144813-7d9921338f24?w=400&h=300&fit=crop'
+            },
+            {
+                name: 'Buenos Aires',
+                location: 'Argentina',
+                lat: -34.6037,
+                lng: -58.3816,
+                category: 'Urbano',
+                categoryClass: 'category-orange',
+                price: '$720',
+                image: 'https://images.unsplash.com/photo-1589909202802-8f4aadce1849?w=400&h=300&fit=crop'
+            },
+            {
+                name: 'Cancún',
+                location: 'México',
+                lat: 21.1619,
+                lng: -86.8515,
+                category: 'Playa',
+                categoryClass: 'category-blue',
+                price: '$580',
+                image: 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=400&h=300&fit=crop'
+            }
+        ];
+
+        // Initialize map
+        let map;
+        
+        function initMap() {
+            // Create map centered on South America
+            map = L.map('map').setView([-15, -60], 4);
+
+            // Add tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 18,
+            }).addTo(map);
+
+            // Custom marker icon
+            const customIcon = (color) => L.divIcon({
+                className: 'custom-marker',
+                html: `<div style="
+                    background: linear-gradient(135deg, ${color} 0%, ${color}dd 100%);
+                    width: 35px;
+                    height: 35px;
+                    border-radius: 50% 50% 50% 0;
+                    transform: rotate(-45deg);
+                    border: 3px solid white;
+                    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                ">
+                    <span style="
+                        transform: rotate(45deg);
+                        color: white;
+                        font-size: 16px;
+                    ">📍</span>
+                </div>`,
+                iconSize: [35, 35],
+                iconAnchor: [17, 35],
+                popupAnchor: [0, -35]
+            });
+
+            // Add markers
+            destinations.forEach(dest => {
+                const color = dest.categoryClass === 'category-green' ? '#4CAF50' :
+                             dest.categoryClass === 'category-orange' ? '#FF9800' : '#2196F3';
+                
+                const marker = L.marker([dest.lat, dest.lng], {
+                    icon: customIcon(color)
+                }).addTo(map);
+
+                // Create popup content
+                const popupContent = `
+                    <div class="popup-content">
+                        <img src="${dest.image}" alt="${dest.name}" class="popup-image" onerror="this.style.display='none'">
+                        <h3 class="popup-title">${dest.name}</h3>
+                        <div class="popup-location">
+                            <span>📍</span>
+                            <span>${dest.location}</span>
+                        </div>
+                        <div class="popup-category ${dest.categoryClass}">${dest.category}</div>
+                        <div class="popup-price">${dest.price}</div>
+                        <button class="popup-btn" onclick="viewDetails('${dest.name}')">Ver detalles</button>
+                    </div>
+                `;
+
+                marker.bindPopup(popupContent, {
+                    maxWidth: 250,
+                    className: 'custom-popup'
+                });
+
+                // Open popup on marker click
+                marker.on('click', function() {
+                    map.setView([dest.lat, dest.lng], 6);
+                });
+            });
+
+            // Hide loading
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+            }, 1000);
+        }
+
+        // Map controls
+        document.getElementById('zoomIn').addEventListener('click', () => {
+            map.zoomIn();
+        });
+
+        document.getElementById('zoomOut').addEventListener('click', () => {
+            map.zoomOut();
+        });
+
+        document.getElementById('myLocation').addEventListener('click', () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    map.setView([lat, lng], 12);
+                    
+                    L.marker([lat, lng], {
+                        icon: L.divIcon({
+                            className: 'my-location-marker',
+                            html: '<div style="background: #2196F3; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"></div>',
+                            iconSize: [20, 20],
+                            iconAnchor: [10, 10]
+                        })
+                    }).addTo(map).bindPopup('Tu ubicación').openPopup();
+                }, () => {
+                    alert('No se pudo obtener tu ubicación');
+                });
+            } else {
+                alert('Geolocalización no soportada');
+            }
+        });
+
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const label = this.querySelector('.nav-label').textContent;
+                if (label === 'Explorar') {
+                    window.location.href = 'travel-home.html';
+                }
+            });
+        });
+
+        // View details function
+        function viewDetails(name) {
+            console.log('Viewing details for:', name);
+            alert(`Abriendo detalles de ${name}...`);
+        }
+
+        // Initialize map when page loads
+        window.addEventListener('load', initMap);
+
+        // Search functionality
+        const searchInput = document.querySelector('.search-input');
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            if (searchTerm.length > 2) {
+                const found = destinations.find(dest => 
+                    dest.name.toLowerCase().includes(searchTerm) ||
+                    dest.location.toLowerCase().includes(searchTerm)
+                );
+                
+                if (found) {
+                    map.setView([found.lat, found.lng], 6);
+                    // Find and open the marker's popup
+                    map.eachLayer(layer => {
+                        if (layer instanceof L.Marker) {
+                            const latlng = layer.getLatLng();
+                            if (Math.abs(latlng.lat - found.lat) < 0.1 && 
+                                Math.abs(latlng.lng - found.lng) < 0.1) {
+                                layer.openPopup();
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>

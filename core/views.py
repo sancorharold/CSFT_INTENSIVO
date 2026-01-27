@@ -1,9 +1,12 @@
+from urllib import request
 from django.views import View
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView
 
 #################################################################################
 @login_required(login_url='login')
@@ -12,7 +15,7 @@ def home(request):
 
 def logout_view(request):
     logout(request)
-    return redirect('login')
+    return redirect('core:login')
 
 
 class LoginView(View):
@@ -94,3 +97,7 @@ class HomeView(View):
     def get(self, request):
         return render(request, "home.html")
 
+
+class MapView(LoginRequiredMixin, TemplateView):
+    template_name = "map.html"
+    login_url = "core:login"
