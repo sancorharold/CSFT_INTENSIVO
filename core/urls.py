@@ -1,11 +1,13 @@
 from django.urls import path
-from .views import LoginView, SignupView, HomeView
+from django.shortcuts import redirect
+from .views import home, LoginView, SignupView, logout_view
 
 app_name = "core"
 
 urlpatterns = [
-    path("", HomeView.as_view(), name="home"),
+    path("", lambda request: redirect("core:login")),  
     path("login/", LoginView.as_view(), name="login"),
     path("signup/", SignupView.as_view(), name="signup"),
+    path("home/", home, name="home"),
+    path("logout/", logout_view, name="logout"),
 ]
-
