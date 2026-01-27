@@ -1,4 +1,5 @@
 let map;
+let userMarker = null;
 
 // Destinos
 const destinations = [];
@@ -32,7 +33,7 @@ function initMap() {
             <b>${d.price}</b>
         `);
 
-        // 🔴 ESTO FALTABA
+        
         markers.push({
             name: d.name.toLowerCase(),
             marker: marker
@@ -52,9 +53,26 @@ document.getElementById("zoomIn").onclick = () => map.zoomIn();
 document.getElementById("zoomOut").onclick = () => map.zoomOut();
 
 document.getElementById("myLocation").onclick = () => {
-    navigator.geolocation.getCurrentPosition(pos => {
-        map.setView([pos.coords.latitude, pos.coords.longitude], 12);
-    });
+    navigator.geolocation.getCurrentPosition(
+        pos => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+
+            map.setView([lat, lng], 14);
+
+            // Si ya existe el marcador, muévelo
+            if (userMarker) {
+                userMarker.setLatLng([lat, lng]);
+            } else {
+                // Si no existe, créalo
+                userMarker = L.marker([lat, lng]).addTo(map);
+                userMarker.bindPopup("tú ubicación").openPopup();
+            }
+        },
+        () => {
+            alert("No se pudo obtener tu ubicación");
+        }
+    );
 };
 
 // SEARCH
