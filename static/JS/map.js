@@ -15,9 +15,22 @@ window.addEventListener("load", () => {
     initMap();
 });
 
+// Límites de Ecuador
+const ECUADOR_BOUNDS = L.latLngBounds(
+    [-5.2, -81.5],  // Suroeste
+    [2.5, -75.0]    // Noreste
+);
+
 // MAP INIT
 function initMap() {
-    map = L.map("map").setView([-15, -60], 4);
+   map = L.map("map", {
+    maxBounds: ECUADOR_BOUNDS,
+    maxBoundsViscosity: 1.0, // fuerza a no salir
+    minZoom: 6,
+    maxZoom: 18
+}).setView([-1.83, -78.18], 6); // Centro de Ecuador
+
+
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 18,
@@ -58,7 +71,11 @@ document.getElementById("myLocation").onclick = () => {
             const lat = pos.coords.latitude;
             const lng = pos.coords.longitude;
 
-            map.setView([lat, lng], 14);
+            if (ECUADOR_BOUNDS.contains([lat, lng])) {
+                 map.setView([lat, lng], 14);}
+                  else {
+                      alert("Tu ubicación está fuera del área permitida");}
+
 
             // Si ya existe el marcador, muévelo
             if (userMarker) {
