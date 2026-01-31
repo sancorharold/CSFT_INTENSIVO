@@ -22,5 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("",include("core.urls",namespace="core") ),
     path("riesgo/",include("riesgo.urls",namespace="riesgo") ),
-
+    path("turismo/",include("turismo.urls",namespace="turismo") ),
+    path("reconocimiento/",include("reconocimiento.urls",namespace="reconocimiento") ),
 ]

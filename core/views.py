@@ -8,6 +8,8 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 
+
+
 #################################################################################
 @login_required(login_url='login')
 def home(request):
