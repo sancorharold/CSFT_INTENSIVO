@@ -1,0 +1,76 @@
+# =====================
+# Python
+# =====================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.so
+
+# Entornos virtuales
+venv/
+env/
+ent/
+.ent/
+.venv/
+.virtualenv/
+
+# =====================
+# Django
+# =====================
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Migraciones compiladas
+*/migrations/__pycache__/
+
+# Archivos estáticos y media
+staticfiles/
+media/
+
+# =====================
+# Variables de entorno
+# =====================
+.env
+.env.*
+*.env
+
+# =====================
+# IDEs / Editores
+# =====================
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# =====================
+# Sistema Operativo
+# =====================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =====================
+# Tests / Coverage
+# =====================
+htmlcov/
+.coverage
+.coverage.*
+.pytest_cache/
+.tox/
+
+# =====================
+# Build / Distribución
+# =====================
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# =====================
+# Jupyter / Data Science
+# =====================
+.ipynb_checkpoints/

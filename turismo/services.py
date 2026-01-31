@@ -127,3 +127,4 @@ def recomendar_por_contexto(lat, lon, contexto):
         "distancia_km": round(menor_distancia, 2),
         "tipo_zona_detectada": contexto["tipo_zona"]
     }
+
