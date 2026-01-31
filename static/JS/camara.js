@@ -2,9 +2,9 @@ const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
 const btn = document.getElementById("capturar");
 
-// Acceder a la cámara
+// 1. Acceder a la cámara
 navigator.mediaDevices.getUserMedia({ 
-    video: { facingMode: "environment" } // Intentar usar la cámara trasera en móviles
+    video: { facingMode: "environment" } // Prioriza la cámara trasera en móviles
 })
 .then(stream => {
     video.srcObject = stream;
@@ -14,7 +14,7 @@ navigator.mediaDevices.getUserMedia({
     alert("No se pudo acceder a la cámara. Asegúrate de dar permisos.");
 });
 
-// Intentamos obtener coordenadas al cargar para acelerar la captura
+// 2. Intentamos obtener coordenadas GPS al cargar para acelerar el proceso
 let cachedCoords = null;
 if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
@@ -25,16 +25,18 @@ if (navigator.geolocation) {
 }
 
 btn.onclick = () => {
-    // Feedback visual (opcional)
+    // Feedback visual en el botón
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
     btn.disabled = true;
 
+    // Ajustar canvas al tamaño del video
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
     const ctx = canvas.getContext("2d");
     ctx.drawImage(video, 0, 0);
 
+    // Función interna para enviar la foto
     const sendWithCoords = (blob, lat, lon) => {
         const formData = new FormData();
         formData.append("imagen", blob, "foto.jpg");
@@ -47,32 +49,40 @@ btn.onclick = () => {
         })
         .then(res => res.json())
         .then(data => {
-            if (data.nombre) alert("Lugar recomendado: " + data.nombre);
+            console.log("Respuesta del servidor:", data);
 
-            // Redirigir al mapa mostrando tanto el sitio recomendado como tu ubicación si están disponibles
-            if (data.lat && data.lon) {
-                const url = `/mapa/?lat=${encodeURIComponent(data.lat)}&lon=${encodeURIComponent(data.lon)}&sitio=${encodeURIComponent(data.nombre || '')}&userlat=${encodeURIComponent(lat)}&userlon=${encodeURIComponent(lon)}&msg=${encodeURIComponent(data.mensaje || '')}`;
+            // --- AQUÍ ESTÁ EL CAMBIO IMPORTANTE ---
+            // Si el backend nos devuelve un ID, significa que identificó un sitio específico.
+            // Redirigimos a la nueva vista de detalle (el boceto).
+            if (data.id) {
+                window.location.href = `/turismo/sitio/${data.id}/`;
+            } 
+            // Fallback: Si no hay ID (quizás solo encontró una zona genérica), vamos al mapa
+            else if (data.lat && data.lon) {
+                alert(data.mensaje || "Ubicación detectada, pero no un sitio específico.");
+                const url = `/mapa/?lat=${encodeURIComponent(data.lat)}&lon=${encodeURIComponent(data.lon)}&msg=${encodeURIComponent(data.mensaje || '')}`;
                 window.location.href = url;
             } else {
-                // Si no hay coordenadas del sitio, redirigimos a mapa centrado en el usuario
-                const url = `/mapa/?userlat=${encodeURIComponent(lat)}&userlon=${encodeURIComponent(lon)}&msg=${encodeURIComponent(data.mensaje || '')}`;
-                window.location.href = url;
+                // Caso de error o sin datos
+                alert(data.mensaje || "No se encontraron coincidencias.");
+                btn.innerHTML = '<i class="fas fa-camera"></i> Capturar';
+                btn.disabled = false;
             }
         })
         .catch(err => {
             console.error(err);
-            alert("Error al procesar la imagen");
+            alert("Error al procesar la imagen o conectar con el servidor.");
             btn.innerHTML = '<i class="fas fa-camera"></i> Capturar';
             btn.disabled = false;
         });
     };
 
-    // Reescalamos la imagen a un ancho máximo para reducir upload + inference
+    // Optimización de imagen antes de enviar (Redimensionar)
     (function(){
         const MAX_WIDTH = 800;
         const QUALITY = 0.7;
 
-        // Creamos un canvas temporal con la nueva resolución
+        // Crear canvas temporal para redimensionar
         const tmp = document.createElement('canvas');
         const scale = Math.min(1, MAX_WIDTH / canvas.width);
         tmp.width = Math.round(canvas.width * scale);
@@ -80,31 +90,27 @@ btn.onclick = () => {
         const tctx = tmp.getContext('2d');
         tctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, tmp.width, tmp.height);
 
-        try {
-            // Guardamos dataURL directo (más simple y rápido que FileReader)
-            sessionStorage.setItem('captured_image', tmp.toDataURL('image/jpeg', QUALITY));
-        } catch (e) {
-            console.warn('No se pudo guardar la imagen en sessionStorage:', e);
-        }
-
-        // Ahora creamos el blob optimizado y redirigimos
+        // Convertir a Blob y enviar
         tmp.toBlob(blob => {
-            // Si hay coords cacheadas usamos la redirección con analizando
+            // Usar coordenadas cacheadas si existen, sino intentar obtenerlas de nuevo
             if (cachedCoords) {
-                window.location.href = `/mapa/?analizando=1&userlat=${encodeURIComponent(cachedCoords.lat)}&userlon=${encodeURIComponent(cachedCoords.lon)}`;
+                sendWithCoords(blob, cachedCoords.lat, cachedCoords.lon);
             } else if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     pos => {
-                        window.location.href = `/mapa/?analizando=1&userlat=${encodeURIComponent(pos.coords.latitude)}&userlon=${encodeURIComponent(pos.coords.longitude)}`;
+                        sendWithCoords(blob, pos.coords.latitude, pos.coords.longitude);
                     },
                     err => {
-                        console.warn('Geolocalización falló en captura:', err);
-                        window.location.href = `/mapa/?analizando=1`;
+                        console.warn('Geolocalización falló en el momento de captura:', err);
+                        alert("Necesitamos tu ubicación para recomendarte sitios cercanos.");
+                        btn.innerHTML = '<i class="fas fa-camera"></i> Capturar';
+                        btn.disabled = false;
                     },
                     { enableHighAccuracy: true, timeout: 7000 }
                 );
             } else {
-                window.location.href = `/mapa/?analizando=1`;
+                alert("Tu navegador no soporta geolocalización.");
+                btn.disabled = false;
             }
         }, 'image/jpeg', QUALITY);
     })();
