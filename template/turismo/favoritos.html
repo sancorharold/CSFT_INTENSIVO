@@ -1,0 +1,62 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Favoritos | ADAY</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- CSS reutilizamos el MISMO del home -->
+    <link rel="stylesheet" href="{% static 'CSS/home.css' %}">
+</head>
+<body>
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <div class="app-title">Mis Favoritos</div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content" style="margin-top:60px;">
+        {% if sitios %}
+            <div class="cards">
+                {% for sitio in sitios %}
+                    {% include "componentes/card_sitio.html" %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- ESTADO VACÍO (igual a la imagen) -->
+            <div style="text-align:center; margin-top:80px;">
+                <i class="fa-regular fa-heart" style="font-size:60px; color:#ccc;"></i>
+                <h2 style="margin-top:20px;">Mis Favoritos</h2>
+                <p style="color:#666;">
+                    Guarda tus destinos favoritos aquí
+                </p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav">
+        <a href="{% url 'core:home' %}">
+            <i class="fa-regular fa-compass"></i> Explorar
+        </a>
+        <a href="{% url 'core:map' %}">
+            <i class="fa-regular fa-map"></i> Mapa
+        </a>
+        <a href="{% url 'core:favoritos' %}" class="active">
+            <i class="fa-regular fa-heart"></i> Favoritos
+        </a>
+        <a href="#">
+            <i class="fa-regular fa-user"></i> Perfil
+        </a>
+    </div>
+
+    <!-- JS -->
+    <script src="{% static 'JS/home.js' %}"></script>
+</body>
+</html>

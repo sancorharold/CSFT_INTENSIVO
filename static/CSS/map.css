@@ -1,0 +1,97 @@
+/* ===== MAP CONTENT ===== */
+.map-content {
+    padding: 0;
+    position: relative;
+    height: calc(100vh - 180px);
+}
+
+/* MAP */
+#map {
+    width: 100%;
+    height: 100%;
+}
+
+/* LOADING */
+.map-loading {
+    position: absolute;
+    inset: 0;
+    background: #faf7ef;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 500;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #ddd;
+    border-top: 4px solid #0b78ff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Analizando overlay */
+#analyzingOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    z-index: 9999;
+    text-align: center;
+    font-size: 16px;
+}
+
+#analyzingOverlay .analyzing-warning {
+    margin-top: 10px;
+    color: #ffd480;
+}
+
+#analyzingOverlay button.retry-btn {
+    margin-top: 12px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: none;
+    background: #0b78ff;
+    color: white;
+    cursor: pointer;
+}
+
+/* MAP CONTROLS */
+.map-controls {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 600;
+}
+
+.map-controls button {
+    width: 42px;
+    height: 42px;
+    border: none;
+    border-radius: 10px;
+    background: white;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,.2);
+}
+
+/* Leaflet popup polish */
+.leaflet-popup-content-wrapper {
+    border-radius: 12px;
+}

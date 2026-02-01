@@ -1,0 +1,7 @@
+pip install scikit-learn
+pip install pandas
+pip intasll joblib
+pip install numpy
+pip install ultralytics opencv-python
+pip install pillow
+pip install tensorflow pillow numpy scipy

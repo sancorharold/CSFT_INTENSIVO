@@ -1,0 +1,135 @@
+{% load static %}
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>ADAY</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- Icons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="{% static 'CSS/home.css' %}">
+    </head>
+    <body>
+        <!-- MENU DESPLEGABLE -->
+        <div class="side-menu" id="sideMenu">
+            <h3>ADAY</h3>
+            <a href="{% url 'core:home' %}">🏠 Inicio</a>
+            <a href="{% url 'core:map' %}">🗺️ Mapa</a>
+            <a href="{% url 'core:favoritos' %}">❤️ Favoritos</a>
+            <a href="#">👤 Perfil</a>
+            <a href="{% url 'core:logout' %}">🚪 Cerrar sesión</a>
+        </div>
+
+        <div class="overlay" id="overlay"></div>
+
+        <!-- TOP BAR -->
+        <div class="top-bar">
+            <div class="app-title">ADAY</div>
+            <i class="fas fa-bars menu-btn" id="menuBtn"></i>
+        </div>
+
+        <!-- SEARCH -->
+        <div class="search-container">
+            <form method="get" action="{% url 'core:home' %}">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="q" placeholder="Escribe la provincia" value="{{ q|default:'' }}">
+                </div>
+            </form>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <h3>Sitios que podrían interesarte</h3>
+            <!-- CARDS -->
+            <div class="cards">
+                {% for sitio in sitios %}
+                <div class="card">
+                    {% if sitio.imagen_referencia %}
+                        <img src="{{ sitio.imagen_referencia.url }}" alt="{{ sitio.nombre }}">
+                    {% else %}
+                        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='240'><rect width='100%' height='100%' fill='%23eaeaea'/><text x='50%' y='50%' font-size='18' text-anchor='middle' fill='%23666' dy='.3em'>Sin imagen</text></svg>" alt="{{ sitio.nombre }}">
+                    {% endif %}
+
+                    <div 
+                        class="heart"
+                        data-id="{{ sitio.id }}"
+                        data-user="{{ user.id }}"
+                    >
+                        {% if user in sitio.favoritos.all %}
+                            <i class="fa-solid fa-heart"></i>
+                        {% else %}
+                            <i class="fa-regular fa-heart"></i>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <h4>{{ sitio.nombre }}</h4>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if paginator.num_pages > 1 %}
+            <div class="pagination" style="text-align:center; margin-top:20px;">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}" class="page-link">« Anterior</a>
+                {% endif %}
+
+                <span style="margin:0 10px;">Página {{ page_obj.number }} de {{ paginator.num_pages }}</span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}" class="page-link">Siguiente »</a>
+                {% endif %}
+            </div>
+            {% endif %} 
+        
+
+
+        <!-- FLOAT BUTTON -->
+        <!-- <div class="float-btn">
+            <i class="fas fa-camera"></i>
+        </div> -->
+        <a href="{% url 'turismo:camara' %}" class="float-btn">
+            <i class="fas fa-camera"></i>
+        </a>
+
+        <!-- BOTTOM NAV -->
+        <div class="bottom-nav">
+            <a href="{% url 'core:home' %}" class="active">
+                <i class="fa-regular fa-compass"></i> Explorar
+            </a>
+            <a href="{% url 'core:map' %}">
+                <i class="fa-regular fa-map"></i> Mapa
+            </a>
+            <a href="{% url 'core:favoritos' %}">
+                <i class="fa-regular fa-heart"></i> Favoritos
+            </a>
+            <a href="#">
+                <i class="fa-regular fa-user"></i> Perfil
+            </a>
+        </div>
+
+        <!-- JS -->
+        <script src="{% static 'JS/home.js' %}"></script>
+
+        <script>
+            // Si la navegación es RELOAD y existe ?q=..., redirigimos a la misma ruta sin q para volver al orden original
+            (function(){
+                try{
+                    const params = new URLSearchParams(window.location.search);
+                    if (params.has('q')){
+                        const nav = performance.getEntriesByType && performance.getEntriesByType('navigation') && performance.getEntriesByType('navigation')[0];
+                        if (nav && nav.type === 'reload'){
+                            params.delete('q');
+                            const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+                            window.location.replace(newUrl);
+                        }
+                    }
+                }catch(e){/* no bloquear en navegadores antiguos */}
+            })();
+        </script>
+    </body>
+    </html>

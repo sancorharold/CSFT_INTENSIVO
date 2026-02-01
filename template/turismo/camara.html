@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cámara - ADAY</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'CSS/home.css' %}">
+    <style>
+        /* Estilos específicos para la cámara */
+        .camera-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: #000; /* Fondo oscuro para resaltar la cámara */
+            padding: 20px;
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 3/4; /* Proporción de cámara móvil */
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .camera-controls {
+            margin-top: 30px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .btn-cam {
+            border: none;
+            border-radius: 50px;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.2s;
+        }
+
+        .btn-capture {
+            background: #0b78ff;
+            color: white;
+            padding: 18px 40px;
+            font-size: 18px;
+        }
+
+        .btn-cancel {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-cam:active {
+            transform: scale(0.95);
+        }
+
+        .camera-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+<div class="camera-container">
+    <div class="video-wrapper">
+        <div class="camera-overlay">ADAY Lens</div>
+        <video id="video" autoplay playsinline></video>
+    </div>
+
+    <div class="camera-controls">
+        <a href="{% url 'core:home' %}" class="btn-cam btn-cancel">
+            <i class="fas fa-times"></i> Cancelar
+        </a>
+        
+        <button id="capturar" class="btn-cam btn-capture">
+            <i class="fas fa-camera"></i> Capturar
+        </button>
+    </div>
+</div>
+
+<canvas id="canvas" style="display:none;"></canvas>
+
+<script src="{% static 'JS/camara.js' %}"></script>
+</body>
+</html>

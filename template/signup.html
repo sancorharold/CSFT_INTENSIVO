@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>ADAY - Registrarse</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f6fc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .signup-container {
+      background-color: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 350px;
+      text-align: center;
+    }
+
+    .signup-container h1 {
+      margin-bottom: 5px;
+      font-size: 24px;
+      color: #333;
+    }
+
+    .signup-container p {
+      margin-bottom: 30px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .icon {
+      font-size: 40px;
+      color: #28a745;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 20px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #28a745;
+      box-shadow: 0 0 5px rgba(40, 167, 69, 0.3);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    .login-link {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .login-link a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+
+    .error {
+      color: #dc3545;
+      margin-bottom: 15px;
+      font-size: 14px;
+      background-color: #f8d7da;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #f5c6cb;
+    }
+
+    .required {
+      color: #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <div class="signup-container">
+    <h1>ADAY</h1>
+    <p>Tu compañero de turismo perfecto</p>
+    <div class="icon">✨</div>
+    <h2>Crear Cuenta</h2>
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <input 
+        type="text" 
+        name="username" 
+        placeholder="Usuario" 
+        value="{{ username }}"
+        required
+      >
+      <input 
+        type="email" 
+        name="email" 
+        placeholder="Correo electrónico" 
+        value="{{ email }}"
+        required
+      >
+      <input 
+        type="password" 
+        name="password" 
+        placeholder="Contraseña" 
+        required
+        minlength="8"
+      >
+      <input 
+        type="password" 
+        name="password2" 
+        placeholder="Confirmar contraseña" 
+        required
+        minlength="8"
+      >
+      <button type="submit">Registrarse</button>
+    </form>
+    <div class="login-link">
+      ¿Ya tienes cuenta? <a href="{% url 'core:login' %}">Inicia sesión aquí</a>
+    </div>
+  </div>
+</body>
+</html>
+
+

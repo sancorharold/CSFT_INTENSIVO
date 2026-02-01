@@ -1,0 +1,98 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>ADAY | Mapa Inteligente</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/map.css' %}">
+</head>
+<body>
+
+<div class="side-menu" id="sideMenu">
+    <h3>ADAY</h3>
+    <a href="{% url 'core:home' %}">🏠 Inicio</a>
+    <a href="{% url 'core:map' %}">🗺️ Mapa</a>
+    <a href="#">❤️ Favoritos</a>
+    <a href="#">👤 Perfil</a>
+    <a href="{% url 'core:logout' %}">🚪 Cerrar sesión</a>
+</div>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="top-bar">
+    <i class="fas fa-bars menu-btn" id="menuBtn"></i>
+    <div class="app-title">ADAY</div>
+</div>
+
+<div class="search-container">
+    <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="mapSearch" placeholder="Buscar destinos turísticos...">
+    </div>
+</div>
+
+<div class="content map-content">
+
+    <div class="map-loading" id="mapLoading">
+        <div class="spinner"></div>
+        <p>Cargando mapa e IA...</p>
+    </div>
+
+    <div id="map"></div>
+
+    <div class="risk-legend" style="
+        position: absolute; 
+        bottom: 90px; 
+        right: 10px; 
+        background: white; 
+        padding: 10px; 
+        border-radius: 8px; 
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3); 
+        z-index: 999; 
+        font-family: sans-serif;
+        font-size: 12px;">
+        <h4 style="margin: 0 0 8px 0; border-bottom:1px solid #eee;">Nivel de Riesgo</h4>
+        <div style="display:flex; align-items:center; margin-bottom:5px;">
+            <span style="width:12px; height:12px; background:#28a745; display:inline-block; margin-right:8px; border-radius:50%;"></span> Bajo
+        </div>
+        <div style="display:flex; align-items:center; margin-bottom:5px;">
+            <span style="width:12px; height:12px; background:#ffc107; display:inline-block; margin-right:8px; border-radius:50%;"></span> Medio
+        </div>
+        <div style="display:flex; align-items:center;">
+            <span style="width:12px; height:12px; background:#dc3545; display:inline-block; margin-right:8px; border-radius:50%;"></span> Alto
+        </div>
+        <div style="margin-top:5px; font-size:10px; color:#777;">*Calculado con IA</div>
+    </div>
+
+    <div class="map-controls">
+        <button id="zoomIn">➕</button>
+        <button id="zoomOut">➖</button>
+        <button id="myLocation">📍</button>
+    </div>
+
+</div>
+
+<div class="float-btn">
+    <i class="fas fa-camera"></i>
+</div>
+
+<div class="bottom-nav">
+    <a href="{% url 'core:home' %}"><i class="fa-regular fa-compass"></i> Explorar</a>
+    <a href="{% url 'core:map' %}" class="active"><i class="fa-regular fa-map"></i> Mapa</a>
+    <a href="#"><i class="fa-regular fa-heart"></i> Favoritos</a>
+    <a href="#"><i class="fa-regular fa-user"></i> Perfil</a>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{% static 'js/home.js' %}"></script>
+<script src="{% static 'js/map.js' %}"></script>
+
+</body>
+</html>
