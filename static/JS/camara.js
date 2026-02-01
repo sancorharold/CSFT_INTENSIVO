@@ -2,41 +2,51 @@ const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
 const btn = document.getElementById("capturar");
 
+// Variables para mantener la ubicación "fresca" en tiempo real
+let currentLat = null;
+let currentLon = null;
+
 // 1. Acceder a la cámara
 navigator.mediaDevices.getUserMedia({ 
-    video: { facingMode: "environment" } // Prioriza la cámara trasera en móviles
+    video: { facingMode: "environment" } 
 })
 .then(stream => {
     video.srcObject = stream;
 })
 .catch(err => {
     console.error(err);
-    alert("No se pudo acceder a la cámara. Asegúrate de dar permisos.");
+    alert("No se pudo acceder a la cámara. Revisa los permisos.");
 });
 
-// 2. Intentamos obtener coordenadas GPS al cargar para acelerar el proceso
-let cachedCoords = null;
+// 2. RASTREO GPS EN TIEMPO REAL (Solución a tu problema)
+// Usamos watchPosition en vez de getCurrentPosition. 
+// Esto actualiza las variables automáticamente si te mueves mientras tienes la página abierta.
 if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-        pos => { cachedCoords = { lat: pos.coords.latitude, lon: pos.coords.longitude }; },
-        err => { console.warn("Geolocalización inicial falló:", err); },
-        { enableHighAccuracy: true, timeout: 7000 }
+    navigator.geolocation.watchPosition(
+        pos => {
+            currentLat = pos.coords.latitude;
+            currentLon = pos.coords.longitude;
+            // Descomenta esto para ver en la consola cómo cambian los números si caminas
+            // console.log("📍 GPS Actualizado:", currentLat, currentLon);
+        },
+        err => { console.warn("Error obteniendo GPS:", err); },
+        { 
+            enableHighAccuracy: true, 
+            maximumAge: 2000, // La ubicación no debe tener más de 2 segundos de antigüedad
+            timeout: 10000 
+        }
     );
 }
 
 btn.onclick = () => {
-    // Feedback visual en el botón
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analizando...';
     btn.disabled = true;
 
-    // Ajustar canvas al tamaño del video
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-
     const ctx = canvas.getContext("2d");
     ctx.drawImage(video, 0, 0);
 
-    // Función interna para enviar la foto
     const sendWithCoords = (blob, lat, lon) => {
         const formData = new FormData();
         formData.append("imagen", blob, "foto.jpg");
@@ -51,66 +61,63 @@ btn.onclick = () => {
         .then(data => {
             console.log("Respuesta del servidor:", data);
 
-            // --- AQUÍ ESTÁ EL CAMBIO IMPORTANTE ---
-            // Si el backend nos devuelve un ID, significa que identificó un sitio específico.
-            // Redirigimos a la nueva vista de detalle (el boceto).
-            if (data.id) {
+            // MANEJO DE RESPUESTAS SEGÚN TU LÓGICA DE NEGOCIO
+            
+            // Caso A: Éxito total (Sitio identificado)
+            if (data.tipo === 'success' && data.id) {
                 window.location.href = `/turismo/sitio/${data.id}/`;
             } 
-            // Fallback: Si no hay ID (quizás solo encontró una zona genérica), vamos al mapa
-            else if (data.lat && data.lon) {
-                alert(data.mensaje || "Ubicación detectada, pero no un sitio específico.");
-                const url = `/mapa/?lat=${encodeURIComponent(data.lat)}&lon=${encodeURIComponent(data.lon)}&msg=${encodeURIComponent(data.mensaje || '')}`;
-                window.location.href = url;
-            } else {
-                // Caso de error o sin datos
-                alert(data.mensaje || "No se encontraron coincidencias.");
-                btn.innerHTML = '<i class="fas fa-camera"></i> Capturar';
-                btn.disabled = false;
+            // Caso B: Sugerencia por cercanía (Estás cerca pero la foto no coincide)
+            else if (data.tipo === 'suggestion' && data.id) {
+                if(confirm(data.mensaje)) {
+                    window.location.href = `/turismo/sitio/${data.id}/`;
+                } else {
+                    resetButton();
+                }
+            } 
+            // Caso C: No encontrado / Estás lejos
+            else {
+                alert(data.mensaje || "No se identificó ningún sitio turístico en esta zona.");
+                resetButton();
             }
         })
         .catch(err => {
             console.error(err);
-            alert("Error al procesar la imagen o conectar con el servidor.");
-            btn.innerHTML = '<i class="fas fa-camera"></i> Capturar';
-            btn.disabled = false;
+            alert("Error al conectar con el servidor.");
+            resetButton();
         });
     };
 
-    // Optimización de imagen antes de enviar (Redimensionar)
+    function resetButton() {
+        btn.innerHTML = '<i class="fas fa-camera"></i> Capturar';
+        btn.disabled = false;
+    }
+
+    // Procesar y optimizar imagen antes de enviar
     (function(){
         const MAX_WIDTH = 800;
         const QUALITY = 0.7;
-
-        // Crear canvas temporal para redimensionar
         const tmp = document.createElement('canvas');
         const scale = Math.min(1, MAX_WIDTH / canvas.width);
         tmp.width = Math.round(canvas.width * scale);
         tmp.height = Math.round(canvas.height * scale);
-        const tctx = tmp.getContext('2d');
-        tctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, tmp.width, tmp.height);
+        tmp.getContext('2d').drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, tmp.width, tmp.height);
 
-        // Convertir a Blob y enviar
         tmp.toBlob(blob => {
-            // Usar coordenadas cacheadas si existen, sino intentar obtenerlas de nuevo
-            if (cachedCoords) {
-                sendWithCoords(blob, cachedCoords.lat, cachedCoords.lon);
-            } else if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    pos => {
-                        sendWithCoords(blob, pos.coords.latitude, pos.coords.longitude);
-                    },
-                    err => {
-                        console.warn('Geolocalización falló en el momento de captura:', err);
-                        alert("Necesitamos tu ubicación para recomendarte sitios cercanos.");
-                        btn.innerHTML = '<i class="fas fa-camera"></i> Capturar';
-                        btn.disabled = false;
-                    },
-                    { enableHighAccuracy: true, timeout: 7000 }
-                );
+            // VERIFICACIÓN CRÍTICA:
+            // Si watchPosition ya nos dio coordenadas frescas, las usamos.
+            if (currentLat && currentLon) {
+                sendWithCoords(blob, currentLat, currentLon);
             } else {
-                alert("Tu navegador no soporta geolocalización.");
-                btn.disabled = false;
+                // Si acabas de abrir la app y el GPS aun no "calienta", forzamos una lectura.
+                navigator.geolocation.getCurrentPosition(
+                    pos => sendWithCoords(blob, pos.coords.latitude, pos.coords.longitude),
+                    err => {
+                        alert("Necesitamos tu ubicación exacta para funcionar. Activa el GPS.");
+                        resetButton();
+                    },
+                    { enableHighAccuracy: true, timeout: 5000 }
+                );
             }
         }, 'image/jpeg', QUALITY);
     })();
