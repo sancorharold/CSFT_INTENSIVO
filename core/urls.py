@@ -1,7 +1,7 @@
 from django.urls import path
 from django.shortcuts import redirect
-
 from . import views
+from .views import MapView, home, LoginView, SignupView, logout_view
 
 app_name = "core"
 

@@ -100,6 +100,7 @@ class SitiosCercanosView(View):
                 "distancia_km": round(distancia, 2),
                 "lat": sitio.latitud,
                 "lon": sitio.longitud,
+                "imagen_url": sitio.imagen_referencia.url if sitio.imagen_referencia else "",
             })
 
         resultados.sort(key=lambda x: x["distancia_km"])

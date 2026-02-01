@@ -26,12 +26,54 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") toggleMenu(false);
 });
 
-// FAVORITOS
-document.querySelectorAll(".heart").forEach(heart => {
-    heart.addEventListener("click", function (e) {
-        e.stopPropagation(); // Evita que el clic se propague a otros elementos
+// --- 1. CARGAR CARTILLAS CON IMÁGENES ---
+document.addEventListener("DOMContentLoaded", () => {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+            // Llamamos a tu vista SitiosCercanosView
+            // Asegúrate de que la URL '/turismo/sitios-cercanos/' coincida con tu urls.py
+            fetch(`/turismo/sitios-cercanos/?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`)
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.querySelector(".cards");
+                    if (!container) return;
+                    container.innerHTML = ""; // Limpiar
 
-        const sitioId = this.dataset.id;
+                    data.sitios.forEach(sitio => {
+                        // Aquí usamos la imagen que viene del Admin
+                        const imgUrl = sitio.imagen_url || "https://placehold.co/600x400?text=Sin+Foto";
+                        
+                        const html = `
+                            <div class="card">
+                                <div class="heart" data-id="${sitio.id}">
+                                    <i class="fa-regular fa-heart"></i>
+                                </div>
+                                <img src="${imgUrl}" alt="${sitio.nombre}">
+                                <div class="card-body">
+                                    <div style="display:flex; justify-content:space-between;">
+                                        <span>${sitio.nombre}</span>
+                                        <span style="color:#0b78ff; font-size:0.9em;">${sitio.distancia_km} km</span>
+                                    </div>
+                                    <small style="color:#666;">${sitio.provincia} • ${sitio.categoria}</small>
+                                </div>
+                            </div>
+                        `;
+                        container.innerHTML += html;
+                    });
+                })
+                .catch(err => console.error("Error cargando sitios:", err));
+        });
+    }
+});
+
+// --- 2. FAVORITOS (Delegación de eventos) ---
+// Se aplica esto en lugar de .querySelectorAll directo para que funcione en las cartillas nuevas
+document.addEventListener("click", function (e) {
+    const heartBtn = e.target.closest(".heart");
+
+    if (heartBtn) {
+        e.stopPropagation();
+        const sitioId = heartBtn.dataset.id;
 
         fetch("/toggle-favorito/", {
             method: "POST",
@@ -47,8 +89,7 @@ document.querySelectorAll(".heart").forEach(heart => {
                 mostrarToast(data.error);
                 return;
             }
-
-            this.innerHTML = data.favorito
+            heartBtn.innerHTML = data.favorito
                 ? '<i class="fa-solid fa-heart"></i>'
                 : '<i class="fa-regular fa-heart"></i>';
 
@@ -58,7 +99,7 @@ document.querySelectorAll(".heart").forEach(heart => {
             console.error(err);
             mostrarToast("Ocurrió un error. Intenta nuevamente.");
         });
-    });
+    }
 });
 
 function getCookie(name) {
