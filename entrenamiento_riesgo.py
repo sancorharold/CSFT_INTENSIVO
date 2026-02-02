@@ -27,6 +27,6 @@ joblib.dump(kmeans, 'riesgo/modelo_zonas.pkl')
 with open('riesgo/datos_riesgo.json', 'w') as f:
     json.dump(riesgo_normalizado.to_dict(), f)
 
-print("✅ Entrenamiento finalizado.")
+print("Entrenamiento finalizado.")
 print(f"   Se generaron {len(riesgo_normalizado)} zonas de riesgo.")
 print(f"   Ejemplo: La zona {riesgo_normalizado.idxmax()} tiene el riesgo más alto ({riesgo_normalizado.max()}).")

@@ -192,7 +192,7 @@ class RecomendacionPorFotoView(View):
                 "mensaje": f"¡Sitio identificado! Estás en {mejor_match.nombre}",
                 "id": mejor_match.id,
                 "nombre": mejor_match.nombre,
-                "score": round(mejor_score, 2)
+                "score": round(float(mejor_score), 2)
             })
         
         # ESCENARIO B: No se parece visualmente, pero el usuario está MUY cerca (Sugerencia)
