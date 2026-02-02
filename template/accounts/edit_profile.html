@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Perfil - ADAY</title>
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+    <style>
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
+        .form-input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
+        .frame-options { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
+        .frame-option { cursor: pointer; border: 2px solid transparent; border-radius: 50%; padding: 2px; transition: all 0.2s; }
+        .frame-option img { width: 50px; height: 50px; border-radius: 50%; display: block; }
+        .frame-option.selected { border-color: #0066ff; transform: scale(1.1); }
+        /* Estilos simples para los marcos visuales */
+        .preview-avatar { width: 80px; height: 80px; background: #ddd; border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .frame-gold { border: 4px solid gold; }
+        .frame-silver { border: 4px solid silver; }
+        .frame-blue { border: 4px solid #0066ff; }
+        .frame-default { border: 4px solid transparent; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="{% url 'accounts:profile' %}" style="color: white; text-decoration: none; font-size: 24px;">←</a>
+        <h1>Editar Perfil</h1>
+        <div style="width: 24px;"></div>
+    </div>
+
+    <div class="profile-section">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label class="form-label">Foto de Perfil</label>
+                <input type="file" name="foto_perfil" class="form-input" accept="image/*">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Nombre de usuario</label>
+                <input type="text" name="username" class="form-input" value="{{ user.username }}" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Correo electrónico</label>
+                <input type="email" name="email" class="form-input" value="{{ user.email }}" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Elige un marco de perfil</label>
+                <div class="frame-options">
+                    <label class="frame-option">
+                        <input type="radio" name="marco" value="default" {% if user.profile.marco == 'default' %}checked{% endif %} hidden>
+                        <div class="preview-avatar frame-default">👤</div>
+                        <small>Normal</small>
+                    </label>
+                    <label class="frame-option">
+                        <input type="radio" name="marco" value="gold" {% if user.profile.marco == 'gold' %}checked{% endif %} hidden>
+                        <div class="preview-avatar frame-gold">👤</div>
+                        <small>Oro</small>
+                    </label>
+                    <label class="frame-option">
+                        <input type="radio" name="marco" value="silver" {% if user.profile.marco == 'silver' %}checked{% endif %} hidden>
+                        <div class="preview-avatar frame-silver">👤</div>
+                        <small>Plata</small>
+                    </label>
+                    <label class="frame-option">
+                        <input type="radio" name="marco" value="blue" {% if user.profile.marco == 'blue' %}checked{% endif %} hidden>
+                        <div class="preview-avatar frame-blue">👤</div>
+                        <small>Azul</small>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 20px;">
+                Guardar Cambios
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // Script simple para resaltar la selección visualmente
+        const options = document.querySelectorAll('.frame-option input');
+        const updateSelection = () => {
+            document.querySelectorAll('.frame-option').forEach(opt => opt.classList.remove('selected'));
+            const checked = document.querySelector('.frame-option input:checked');
+            if(checked) checked.parentElement.classList.add('selected');
+        };
+        options.forEach(opt => opt.addEventListener('change', updateSelection));
+        updateSelection();
+    </script>
+</body>
+</html>

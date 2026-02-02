@@ -1,0 +1,64 @@
+{% extends "home.html" %}
+{% load static %}
+
+{% block title %}Mis Mensajes{% endblock %}
+
+{% block search %}{% endblock %}
+
+{% block head_extra %}
+<style>
+    body { background-color: #f0f2f5; font-family: sans-serif; }
+    .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
+    .header { background: #fff; padding: 15px; text-align: center; border-bottom: 1px solid #ddd; }
+    .header h1 { font-size: 1.5em; color: #333; }
+    .chat-card {
+        display: flex;
+        align-items: center;
+        background: #fff;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        text-decoration: none;
+        color: inherit;
+        transition: background-color 0.2s;
+    }
+    .chat-card:hover { background-color: #f9f9f9; }
+    .avatar-placeholder { width: 50px; height: 50px; border-radius: 50%; background-color: #ddd; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; margin-right: 15px; }
+    .chat-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 15px; }
+    .chat-info { flex-grow: 1; }
+    .chat-name { font-weight: bold; }
+    .last-message { font-size: 0.9em; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
+    .no-data { text-align: center; color: #777; padding: 40px; background: #fff; border-radius: 10px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="header">
+        <h1>Mensajes</h1>
+    </div>
+    <br>
+    {% for conv in conversations %}
+        {% with other_user=conv.participants.all|exclude:request.user|first %}
+        <a href="{% url 'accounts:conversation_detail' other_user.id %}" class="chat-card">
+            {% if other_user.profile.foto_perfil %}
+                <img src="{{ other_user.profile.foto_perfil.url }}" alt="{{ other_user.username }}" class="chat-avatar">
+            {% else %}
+                <div class="avatar-placeholder">👤</div>
+            {% endif %}
+            <div class="chat-info">
+                <div class="chat-name">{{ other_user.username }}</div>
+                {% with last_msg=conv.messages.last %}
+                    <div class="last-message">
+                        {% if last_msg %}{{ last_msg.text }}{% else %}<i>Inicia la conversación</i>{% endif %}
+                    </div>
+                {% endwith %}
+            </div>
+        </a>
+        {% endwith %}
+    {% empty %}
+        <p class="no-data">No tienes conversaciones. <br>¡Haz un amigo y envíale un mensaje!</p>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -3,7 +3,7 @@
     <html lang="es">
     <head>
         <meta charset="UTF-8">
-        <title>ADAY</title>
+        <title>{% block title %}ADAY{% endblock %}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
         <!-- Icons -->
@@ -11,15 +11,17 @@
 
         <!-- CSS -->
         <link rel="stylesheet" href="{% static 'CSS/home.css' %}">
+        {% block head_extra %}{% endblock %}
     </head>
     <body>
         <!-- MENU DESPLEGABLE -->
+         
         <div class="side-menu" id="sideMenu">
             <h3>ADAY</h3>
             <a href="{% url 'core:home' %}">🏠 Inicio</a>
             <a href="{% url 'core:map' %}">🗺️ Mapa</a>
             <a href="{% url 'core:favoritos' %}">❤️ Favoritos</a>
-            <a href="#">👤 Perfil</a>
+            <a href="{% url 'accounts:profile' %}">👤 Perfil</a>
             <a href="{% url 'core:logout' %}">🚪 Cerrar sesión</a>
         </div>
 
@@ -32,6 +34,7 @@
         </div>
 
         <!-- SEARCH -->
+        {% block search %}
         <div class="search-container">
             <form method="get" action="{% url 'core:home' %}">
                 <div class="search-box">
@@ -40,9 +43,11 @@
                 </div>
             </form>
         </div>
+        {% endblock %}
 
         <!-- CONTENT -->
         <div class="content">
+            {% block content %}
             <h3>Sitios que podrían interesarte</h3>
             <!-- CARDS -->
             <div class="cards">
@@ -85,6 +90,8 @@
                 {% endif %}
             </div>
             {% endif %} 
+            {% endblock %}
+        </div>
         
 
 
@@ -107,7 +114,7 @@
             <a href="{% url 'core:favoritos' %}">
                 <i class="fa-regular fa-heart"></i> Favoritos
             </a>
-            <a href="#">
+            <a href="{% url 'accounts:profile' %}">
                 <i class="fa-regular fa-user"></i> Perfil
             </a>
         </div>

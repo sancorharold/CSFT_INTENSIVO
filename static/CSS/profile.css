@@ -1,0 +1,630 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+/* Header */
+.header {
+    background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 102, 255, 0.3);
+}
+
+.header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.menu-icon {
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Search Bar */
+.search-container {
+    background: white;
+    padding: 15px 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: #f5f5f5;
+    border-radius: 25px;
+    padding: 10px 20px;
+}
+
+.search-box input {
+    border: none;
+    background: transparent;
+    outline: none;
+    flex: 1;
+    font-size: 14px;
+    color: #666;
+}
+
+.search-icon {
+    color: #999;
+    margin-right: 10px;
+}
+
+/* Profile Section */
+.profile-section {
+    background: white;
+    margin: 20px;
+    padding: 40px 20px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    position: relative;
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.profile-avatar svg {
+    width: 60px;
+    height: 60px;
+    fill: white;
+}
+
+/* Estilos de Marcos */
+.profile-avatar.frame-gold {
+    border: 5px solid #FFD700;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+}
+
+.profile-avatar.frame-silver {
+    border: 5px solid #C0C0C0;
+    box-shadow: 0 0 15px rgba(192, 192, 192, 0.6);
+}
+
+.profile-avatar.frame-blue {
+    border: 5px solid #0066ff;
+    box-shadow: 0 0 15px rgba(0, 102, 255, 0.4);
+}
+
+.camera-badge {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: #0066ff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 3px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.camera-badge svg {
+    width: 16px;
+    height: 16px;
+    fill: white;
+}
+
+.profile-name {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #1a1a1a;
+}
+
+.profile-email {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 25px;
+}
+
+.profile-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.btn {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s;
+    text-decoration: none; /* Añadido para los enlaces <a> */
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn-primary {
+    background: #0066ff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #0052cc;
+}
+
+.fab-camera {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: #0066ff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 102, 255, 0.4);
+    cursor: pointer;
+    transition: transform 0.2s;
+    z-index: 990;
+}
+
+.fab-camera:hover {
+    transform: scale(1.1);
+}
+
+.fab-camera svg {
+    width: 24px;
+    height: 24px;
+    fill: white;
+}
+
+/* Stats Section */
+.stats-section {
+    margin: 20px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #1a1a1a;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    background: #e6f2ff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: #0066ff;
+}
+
+.stat-info {
+    flex: 1;
+}
+
+.stat-number {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: #666;
+}
+
+/* Achievements Section */
+.achievements-section {
+    margin: 20px;
+}
+
+.achievement-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 12px;
+}
+
+.achievement-icon {
+    font-size: 40px;
+}
+
+.achievement-info {
+    flex: 1;
+}
+
+.achievement-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+}
+
+.achievement-subtitle {
+    font-size: 13px;
+    color: #666;
+}
+
+/* Recent Trips Section */
+.trips-section {
+    margin: 20px;
+}
+
+.trip-card {
+    background: white;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 12px;
+}
+
+.trip-image {
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.trip-info {
+    flex: 1;
+}
+
+.trip-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+}
+
+.trip-time {
+    font-size: 13px;
+    color: #666;
+}
+
+.trip-location-icon {
+    color: #0066ff;
+    font-size: 20px;
+}
+
+/* Configuration Section */
+.config-section {
+    margin: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.config-item {
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.2s;
+    text-decoration: none;
+}
+
+.config-item:last-child {
+    border-bottom: none;
+}
+
+.config-item:hover {
+    background: #f9f9f9;
+}
+
+.config-icon {
+    color: #0066ff;
+    font-size: 20px;
+}
+
+.config-text {
+    flex: 1;
+    font-size: 15px;
+    color: #1a1a1a;
+}
+
+.logout-text {
+    color: #ff3b30;
+    font-weight: 500;
+    width: 100%;
+    text-align: left;
+}
+
+.logout-text:hover {
+    background: #fff5f5;
+}
+
+/* Camera Modal */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-overlay.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.camera-modal {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    color: white;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.close-modal:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.camera-preview {
+    width: 100%;
+    max-width: 500px;
+    height: 350px;
+    background: #1a1a1a;
+    border-radius: 12px;
+    margin: 0 auto 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+#videoElement {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+}
+
+#videoElement.active {
+    display: block;
+}
+
+#capturedImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+}
+
+#capturedImage.active {
+    display: block;
+}
+
+.camera-placeholder {
+    color: #666;
+    font-size: 16px;
+}
+
+.camera-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.camera-btn {
+    padding: 16px 30px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: all 0.2s;
+}
+
+.camera-btn:active {
+    transform: scale(0.98);
+}
+
+.camera-btn-primary {
+    background: #0066ff;
+    color: white;
+}
+
+.camera-btn-primary:hover {
+    background: #0052cc;
+}
+
+.camera-btn-secondary {
+    background: white;
+    color: #0066ff;
+}
+
+.camera-btn-secondary:hover {
+    background: #f0f0f0;
+}
+
+.camera-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+.capture-btn {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: white;
+    border: 4px solid #0066ff;
+    margin: 20px auto;
+    cursor: pointer;
+    transition: transform 0.2s;
+    display: none;
+}
+
+.capture-btn.active {
+    display: block;
+}
+
+.capture-btn:hover {
+    transform: scale(1.1);
+}
+
+.capture-btn:active {
+    transform: scale(0.95);
+}
+
+#fileInput {
+    display: none;
+}
+
+.action-buttons {
+    display: none;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.action-buttons.active {
+    display: flex;
+}
+
+.btn-retake {
+    background: #ff3b30;
+    color: white;
+    flex: 1;
+}
+
+.btn-retake:hover {
+    background: #d62d22;
+}
+
+.btn-save {
+    background: #34c759;
+    color: white;
+    flex: 1;
+}
+
+.btn-save:hover {
+    background: #2da84a;
+}
+
+/* Estilo para las notificaciones Toast */
+.toast-notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #28a745; /* Verde éxito */
+    color: white;
+    padding: 12px 25px;
+    border-radius: 25px;
+    z-index: 1001;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    animation: slideInDown 0.5s ease-out;
+}
+
+@keyframes slideInDown {
+    from { top: -50px; opacity: 0; }
+    to { top: 20px; opacity: 1; }
+}

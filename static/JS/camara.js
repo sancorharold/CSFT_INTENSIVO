@@ -53,11 +53,44 @@ btn.onclick = () => {
         formData.append("lat", lat);
         formData.append("lon", lon);
 
+        const token = getCookie("csrftoken");
+        if (!token) {
+            alert("Error de seguridad: No se encontró el token de sesión. Recarga la página.");
+            resetButton();
+            return;
+        }
+
         fetch("/turismo/recomendar/", {
             method: "POST",
+            headers: {
+                "X-CSRFToken": token
+            },
             body: formData
         })
-        .then(res => res.json())
+        .then(async res => {
+            // 1. Verificar redirecciones (ej. sesión expirada)
+            if (res.redirected) {
+                throw new Error("Tu sesión ha expirado. Por favor inicia sesión nuevamente.");
+            }
+
+            // 2. Verificar errores HTTP
+            if (!res.ok) {
+                let errorMsg = "Error en el servidor: " + res.status;
+                try {
+                    const errData = await res.json();
+                    if (errData.error) errorMsg = errData.error;
+                } catch(e) {}
+                throw new Error(errorMsg);
+            }
+
+            // 3. Verificar que la respuesta sea JSON
+            const contentType = res.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error("Respuesta inválida del servidor (no es JSON).");
+            }
+
+            return res.json();
+        })
         .then(data => {
             console.log("Respuesta del servidor:", data);
 
@@ -82,8 +115,8 @@ btn.onclick = () => {
             }
         })
         .catch(err => {
-            console.error(err);
-            alert("Error al conectar con el servidor.");
+            console.error("Error en cámara:", err);
+            alert(err.message || "Error de conexión con el servidor.");
             resetButton();
         });
     };
@@ -122,3 +155,18 @@ btn.onclick = () => {
         }, 'image/jpeg', QUALITY);
     })();
 };
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}

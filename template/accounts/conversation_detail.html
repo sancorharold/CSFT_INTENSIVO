@@ -1,0 +1,51 @@
+{% extends "home.html" %}
+{% load static %}
+
+{% block title %}Chat con {{ other_user.username }}{% endblock %}
+
+{% block search %}{% endblock %}
+
+{% block head_extra %}
+<style>
+    body { background-color: #e5ddd5; font-family: sans-serif; display: flex; flex-direction: column; height: 100vh; }
+    .chat-header { background: #005e54; color: white; padding: 10px 15px; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    .chat-header a { color: white; font-size: 20px; text-decoration: none; margin-right: 15px; }
+    .chat-header h1 { font-size: 1.2em; }
+    .chat-container { flex-grow: 1; overflow-y: auto; padding: 20px; }
+    .message-bubble { max-width: 70%; padding: 10px 15px; border-radius: 18px; margin-bottom: 10px; line-height: 1.4; }
+    .message-sent { background-color: #dcf8c6; align-self: flex-end; margin-left: auto; }
+    .message-received { background-color: #fff; align-self: flex-start; }
+    .message-form { display: flex; padding: 10px; background: #f0f0f0; }
+    .message-form input { flex-grow: 1; border: none; padding: 12px; border-radius: 20px; margin-right: 10px; }
+    .message-form button { background: #005e54; color: white; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; cursor: pointer; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-header">
+    <a href="{% url 'accounts:messages_list' %}">←</a>
+    <h1>{{ other_user.username }}</h1>
+</div>
+
+<div class="chat-container" id="chat-container">
+    {% for message in messages_list %}
+        <div class="message-bubble {% if message.sender == request.user %}message-sent{% else %}message-received{% endif %}">
+            {{ message.text }}
+        </div>
+    {% empty %}
+        <p style="text-align: center; color: #666;">Aún no hay mensajes. ¡Sé el primero en saludar!</p>
+    {% endfor %}
+</div>
+
+<form class="message-form" method="post">
+    {% csrf_token %}
+    <input type="text" name="message_text" placeholder="Escribe un mensaje..." autocomplete="off" required>
+    <button type="submit">➤</button>
+</form>
+
+<script>
+    // Scroll automático al último mensaje
+    const chatContainer = document.getElementById('chat-container');
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+</script>
+{% endblock %}

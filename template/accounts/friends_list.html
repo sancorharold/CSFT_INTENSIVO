@@ -1,0 +1,123 @@
+{% extends "home.html" %}
+{% load static %}
+
+{% block title %}Mis Amigos{% endblock %}
+
+{% block search %}{% endblock %}
+
+{% block head_extra %}
+<style>
+    body { background-color: #f0f2f5; font-family: sans-serif; }
+    .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
+    .section-title { font-size: 1.5em; color: #333; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+    .friend-card, .request-card {
+        display: flex;
+        align-items: center;
+        background: #fff;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .avatar-placeholder {
+        width: 50px; height: 50px;
+        border-radius: 50%;
+        background-color: #ddd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: #fff;
+        margin-right: 15px;
+    }
+    .friend-avatar {
+        width: 50px; height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 15px;
+    }
+    .friend-info { flex-grow: 1; }
+    .friend-actions {
+        display: flex;
+        gap: 8px;
+    }
+    .btn-message { background-color: #007bff; color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; }
+    .btn-remove { background-color: #6c757d; color: white; }
+
+    .friend-name { font-weight: bold; }
+    .request-actions button {
+        padding: 8px 12px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-left: 5px;
+    }
+    .btn-accept { background-color: #28a745; color: white; }
+    .btn-decline { background-color: #dc3545; color: white; }
+    .no-data { text-align: center; color: #777; padding: 20px; background: #fff; border-radius: 10px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="section-title">Solicitudes Pendientes</h1>
+    {% for req in pending_requests %}
+        <div class="request-card">
+            {% if req.from_user.profile.foto_perfil %}
+                <img src="{{ req.from_user.profile.foto_perfil.url }}" alt="{{ req.from_user.username }}" class="friend-avatar">
+            {% else %}
+                <div class="avatar-placeholder">👤</div>
+            {% endif %}
+            <div class="friend-info">
+                <div class="friend-name">{{ req.from_user.username }}</div>
+                <small>Quiere ser tu amigo</small>
+            </div>
+            <div class="request-actions">
+                <form action="{% url 'accounts:accept_friend_request' req.id %}" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-accept">Aceptar</button>
+                </form>
+                <form action="{% url 'accounts:decline_friend_request' req.id %}" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-decline">Rechazar</button>
+                </form>
+            </div>
+        </div>
+    {% empty %}
+        <p class="no-data">No tienes solicitudes pendientes.</p>
+    {% endfor %}
+
+    <h1 class="section-title" style="margin-top: 30px;">Mis Amigos</h1>
+    {% for friend_rel in friends_list %}
+        <div class="friend-card">
+            {% if friend_rel.from_user == user %}
+                {% if friend_rel.to_user.profile.foto_perfil %}
+                    <img src="{{ friend_rel.to_user.profile.foto_perfil.url }}" alt="{{ friend_rel.to_user.username }}" class="friend-avatar">
+                {% else %}
+                    <div class="avatar-placeholder">👤</div>
+                {% endif %}
+            {% else %}
+                {% if friend_rel.from_user.profile.foto_perfil %}
+                    <img src="{{ friend_rel.from_user.profile.foto_perfil.url }}" alt="{{ friend_rel.from_user.username }}" class="friend-avatar">
+                {% else %}
+                    <div class="avatar-placeholder">👤</div>
+                {% endif %}
+            {% endif %}
+            <div class="friend-info">
+                {% with other_user=friend_rel.to_user|yesno:friend_rel.from_user %}
+                <div class="friend-name">{{ other_user.username }}</div>
+                {% endwith %}
+            </div>
+            <div class="friend-actions">
+                <a href="{% url 'accounts:conversation_detail' friend_rel.to_user.id|yesno:friend_rel.from_user.id %}" class="btn-message">Mensaje</a>
+                <form action="{% url 'accounts:remove_friend' friend_rel.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-decline btn-remove" title="Eliminar amigo">X</button>
+                </form>
+            </div>
+        </div>
+    {% empty %}
+        <p class="no-data">Aún no tienes amigos. ¡Busca a alguien!</p>
+    {% endfor %}
+</div>
+{% endblock %}

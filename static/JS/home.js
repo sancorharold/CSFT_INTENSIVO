@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <div class="heart" data-id="${sitio.id}">
                                     <i class="fa-regular fa-heart"></i>
                                 </div>
-                                <img src="${imgUrl}" alt="${sitio.nombre}">
+                                <img src="${imgUrl}" alt="${sitio.nombre}" onerror="this.src='https://placehold.co/600x400?text=Sin+Imagen'">
                                 <div class="card-body">
                                     <div style="display:flex; justify-content:space-between;">
                                         <span>${sitio.nombre}</span>
