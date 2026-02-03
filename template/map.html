@@ -19,8 +19,8 @@
     <h3>ADAY</h3>
     <a href="{% url 'core:home' %}">🏠 Inicio</a>
     <a href="{% url 'core:map' %}">🗺️ Mapa</a>
-    <a href="#">❤️ Favoritos</a>
-    <a href="#">👤 Perfil</a>
+    <a href="{% url 'core:favoritos' %}">❤️ Favoritos</a>
+    <a href="{% url 'accounts:profile' %}">👤 Perfil</a>
     <a href="{% url 'core:logout' %}">🚪 Cerrar sesión</a>
 </div>
 
@@ -86,8 +86,8 @@
 <div class="bottom-nav">
     <a href="{% url 'core:home' %}"><i class="fa-regular fa-compass"></i> Explorar</a>
     <a href="{% url 'core:map' %}" class="active"><i class="fa-regular fa-map"></i> Mapa</a>
-    <a href="#"><i class="fa-regular fa-heart"></i> Favoritos</a>
-    <a href="#"><i class="fa-regular fa-user"></i> Perfil</a>
+    <a href="{% url 'core:favoritos' %}"><i class="fa-regular fa-heart"></i> Favoritos</a>
+    <a href="{% url 'accounts:profile' %}"><i class="fa-regular fa-user"></i> Perfil</a>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

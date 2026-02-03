@@ -26,6 +26,7 @@ urlpatterns = [
     path("riesgo/",include("riesgo.urls",namespace="riesgo") ),
     path("turismo/",include("turismo.urls",namespace="turismo") ),
     path("reconocimiento/",include("reconocimiento.urls",namespace="reconocimiento") ),
+    path("accounts/",include("accounts.urls",namespace="accounts") ),
 ]
 
 # Servir archivos media durante el desarrollo (DEBUG=True)

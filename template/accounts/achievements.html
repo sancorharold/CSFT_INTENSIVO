@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Logros - ADAY</title>
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+    <style>
+        /* Estilo para logros bloqueados: gris y semitransparente */
+        .achievement-card.locked {
+            filter: grayscale(100%);
+            opacity: 0.6;
+            background: #f9f9f9;
+        }
+        .achievement-card.locked .achievement-title {
+            color: #666;
+        }
+        .status-badge {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            margin-left: auto;
+        }
+        .status-unlocked { background: #e6f9e6; color: #28a745; }
+        .status-locked { background: #eee; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="{% url 'accounts:profile' %}" style="color: white; text-decoration: none; font-size: 24px;">←</a>
+        <h1>Logros</h1>
+        <div style="width: 24px;"></div>
+    </div>
+
+    <div class="achievements-section">
+        <div class="section-title">Todos los Logros</div>
+        
+        {% for ach in achievements %}
+        <div class="achievement-card {% if not ach.unlocked %}locked{% endif %}">
+            <div class="achievement-icon">{{ ach.icon }}</div>
+            <div class="achievement-info">
+                <div class="achievement-title">{{ ach.title }}</div>
+                <div class="achievement-subtitle">{{ ach.desc }}</div>
+            </div>
+            <div class="status-badge {% if ach.unlocked %}status-unlocked{% else %}status-locked{% endif %}">
+                {% if ach.unlocked %}Desbloqueado{% else %}Bloqueado{% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
