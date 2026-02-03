@@ -5,28 +5,28 @@ from django.http import JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Friendship, Conversation, Message
 from django.db.models import Q, F
+from .models import Profile, Friendship, Conversation, Message
 
 # Asegúrate de que el usuario esté logueado para acceder a esta vista
 class ProfileView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        # Gracias al modelo y las señales, el perfil ya existe y está
-        # disponible a través de request.user.profile
-        profile = request.user.profile
+        # Intentamos obtener el perfil, si no existe lo creamos al vuelo
+        try:
+            profile = request.user.profile
+        except Exception: # Captura RelatedObjectDoesNotExist
+            profile = Profile.objects.create(user=request.user)
 
-        # Contamos las amistades aceptadas donde el usuario es el emisor O el receptor
+        # Contamos las amistades aceptadas
         amigos_count = Friendship.objects.filter(
             (Q(from_user=request.user) | Q(to_user=request.user)),
             status=Friendship.Status.ACCEPTED
         ).count()
 
         context = {
-            # Pasamos el 'profile' y 'amigos_count' a la plantilla
             'profile': profile,
             'amigos_count': amigos_count,
         }
-        # Renderizamos la plantilla que modificamos
         return render(request, 'accounts/profile.html', context)
-
 class FriendsView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         # Obtenemos las amistades aceptadas
