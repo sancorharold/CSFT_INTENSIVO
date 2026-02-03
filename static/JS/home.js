@@ -1,46 +1,41 @@
-//SELECTORES DE ELEMENTOS
+// --- 1. SELECTORES Y LÓGICA DEL MENÚ ---
 const menuBtn  = document.getElementById("menuBtn");
 const sideMenu = document.getElementById("sideMenu");
 const overlay  = document.getElementById("overlay");
 
-
-
-/**
- * Alterna la visibilidad del menú lateral y el overlay
- * @param {boolean} isOpen - Determina si se abre o se cierra
- */
 const toggleMenu = (isOpen) => {
-    sideMenu.classList.toggle("active", isOpen);
-    overlay.classList.toggle("active", isOpen);
+    if (sideMenu) sideMenu.classList.toggle("active", isOpen);
+    if (overlay) overlay.classList.toggle("active", isOpen);
 };
 
+if (menuBtn) menuBtn.addEventListener("click", () => toggleMenu(true));
+if (overlay) overlay.addEventListener("click", () => toggleMenu(false));
 
-// Abrir el menú al hacer clic en el botón
-menuBtn.addEventListener("click", () => toggleMenu(true));
-
-// Cerrar el menú al hacer clic en el overlay (fuera del menú)
-overlay.addEventListener("click", () => toggleMenu(false));
-
-// Opcional: Cerrar menú con la tecla "Escape" para mejorar la accesibilidad
 document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") toggleMenu(false);
 });
 
-// --- 1. CARGAR CARTILLAS CON IMÁGENES ---
+// --- 2. CARGA DINÁMICA (GEOLOCALIZACIÓN) ---
 document.addEventListener("DOMContentLoaded", () => {
+    const inputBusqueda = document.querySelector('input[name="q"]');
+
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(pos => {
-            // Llamamos a tu vista SitiosCercanosView
-            // Asegúrate de que la URL '/turismo/sitios-cercanos/' coincida con tu urls.py
+            // No sobreescribir si el usuario ya buscó algo manualmente
+            if (inputBusqueda && inputBusqueda.value.trim() !== "") {
+                console.log("📍 Búsqueda activa detectada. No se cargan sitios cercanos.");
+                return; 
+            }
+
             fetch(`/turismo/sitios-cercanos/?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`)
                 .then(res => res.json())
                 .then(data => {
                     const container = document.querySelector(".cards");
                     if (!container) return;
-                    container.innerHTML = ""; // Limpiar
+                    
+                    container.innerHTML = ""; 
 
                     data.sitios.forEach(sitio => {
-                        // Aquí usamos la imagen que viene del Admin
                         const imgUrl = sitio.imagen_url || "https://placehold.co/600x400?text=Sin+Foto";
                         
                         const html = `
@@ -48,7 +43,8 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <div class="heart" data-id="${sitio.id}">
                                     <i class="fa-regular fa-heart"></i>
                                 </div>
-                                <img src="${imgUrl}" alt="${sitio.nombre}" onerror="this.src='https://placehold.co/600x400?text=Sin+Imagen'">
+                                <img src="${imgUrl}" alt="${sitio.nombre}" 
+                                     onerror="this.src='https://placehold.co/600x400?text=Error+de+Carga'">
                                 <div class="card-body">
                                     <div style="display:flex; justify-content:space-between;">
                                         <span>${sitio.nombre}</span>
@@ -61,13 +57,12 @@ document.addEventListener("DOMContentLoaded", () => {
                         container.innerHTML += html;
                     });
                 })
-                .catch(err => console.error("Error cargando sitios:", err));
+                .catch(err => console.error("Error cargando sitios cercanos:", err));
         });
     }
 });
 
-// --- 2. FAVORITOS (Delegación de eventos) ---
-// Se aplica esto en lugar de .querySelectorAll directo para que funcione en las cartillas nuevas
+// --- 3. LÓGICA DE FAVORITOS (Delegación de eventos) ---
 document.addEventListener("click", function (e) {
     const heartBtn = e.target.closest(".heart");
 
@@ -96,12 +91,13 @@ document.addEventListener("click", function (e) {
             mostrarToast(data.mensaje);
         })
         .catch(err => {
-            console.error(err);
+            console.error("Error en favoritos:", err);
             mostrarToast("Ocurrió un error. Intenta nuevamente.");
         });
     }
 });
 
+// --- 4. UTILIDADES (Cookies y Toasts) ---
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -120,19 +116,17 @@ function getCookie(name) {
 function mostrarToast(mensaje) {
     const toast = document.createElement("div");
     toast.innerText = mensaje;
-    toast.style.position = "fixed";
-    toast.style.bottom = "110px";
-    toast.style.left = "50%";
-    toast.style.transform = "translateX(-50%)";
-    toast.style.background = "#333";
-    toast.style.color = "#fff";
-    toast.style.padding = "10px 20px";
-    toast.style.borderRadius = "20px";
-    toast.style.zIndex = "999";
-
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 110px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #333;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 20px;
+        z-index: 9999;
+    `;
     document.body.appendChild(toast);
-
-    setTimeout(() => {
-        toast.remove();
-    }, 2000);
+    setTimeout(() => toast.remove(), 2000);
 }
