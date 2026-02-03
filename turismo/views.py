@@ -180,19 +180,6 @@ class RecomendacionPorFotoView(LoginRequiredMixin, View):
             UMBRAL_COINCIDENCIA = 0.70
             UMBRAL_SUGERENCIA_DIST = 0.20
 
-        # ESCENARIO A: La IA confirma que se parece visualmente
-        if mejor_match and mejor_score >= UMBRAL_COINCIDENCIA:
-            return JsonResponse({
-                "tipo": "success",
-                "mensaje": f"¡Sitio identificado! Estás en {mejor_match.nombre}",
-                "id": mejor_match.id,
-                "nombre": mejor_match.nombre,
-                "score": round(float(mejor_score), 2)
-            })
-        
-        # ESCENARIO B: No se parece visualmente, pero el usuario está MUY cerca (Sugerencia)
-        sitio_mas_cercano = candidatos[0][0]
-        dist_mas_cercana = candidatos[0][1]
             if mejor_match and mejor_score >= UMBRAL_COINCIDENCIA:
                 newly_unlocked_achievement = None
                 if hasattr(request.user, 'profile'):
