@@ -20,9 +20,9 @@ class SitioTuristico(models.Model):
         ("otro", "Otro"),
     ]
 
-    nombre = models.CharField(max_length=150)
-    provincia = models.CharField(max_length=100)
-    categoria = models.CharField(max_length=20, choices=CATEGORIAS)
+    nombre = models.CharField(max_length=200) # El nombre suele ser largo
+    categoria = models.CharField(max_length=100) # Aumenta de 20 a 100
+    provincia = models.CharField(max_length=100) # Aumenta de 20 a 100
     
     # Campo nuevo para la IA
     imagen_referencia = models.ImageField(upload_to=ruta_imagen_sitio, null=True, blank=True, verbose_name="Foto de Referencia para IA")

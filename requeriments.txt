@@ -5,3 +5,4 @@ pip install numpy
 pip install ultralytics opencv-python
 pip install pillow
 pip install tensorflow pillow numpy scipy
+pip install psycopg2-binary dj-database-url django-storage-supabase

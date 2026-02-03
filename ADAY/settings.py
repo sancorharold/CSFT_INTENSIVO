@@ -81,14 +81,36 @@ WSGI_APPLICATION = 'ADAY.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+import dj_database_url
+import os
+
+# --- CONFIGURACIÓN DE BASE DE DATOS (SUPABASE) ---
+# settings.py
+import dj_database_url
+
+# Reemplaza todo tu bloque de DATABASES por este:
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres.uikjyyrkhmocydhgsaou',  # El usuario largo que te dio Supabase
+        'PASSWORD': 'T%!t3Vx9gxD$Pe!',           # Tu contraseña real
+        'HOST': 'aws-1-us-east-2.pooler.supabase.com', # El host del pooler
+        'PORT': '6543',                          # El puerto para IPv4
+        'OPTIONS': {
+            'connect_timeout': 20,
+        }
     }
 }
+SUPABASE_URL = "https://uikjyyrkhmocydhgsaou.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." # Tu clave anon
+SUPABASE_STORAGE_BUCKET = "media"
+
+DEFAULT_FILE_STORAGE = 'django_storage_supabase.storage.SupabaseStorage'
+MEDIA_URL = f"{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_STORAGE_BUCKET}/"
 
 
+########################################################################################
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 AUTHENTICATION_BACKENDS = [
@@ -135,5 +157,4 @@ LOGIN_URL = "core:login"
 LOGIN_REDIRECT_URL = "core:home"
 LOGOUT_REDIRECT_URL = "core:login"
 ####
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+
