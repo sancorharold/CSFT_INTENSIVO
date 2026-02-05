@@ -210,6 +210,7 @@ body {
     font-size: 18px;
     font-weight: 600;
     margin-bottom: 15px;
+    margin-top: 10px; /* Agregado para evitar que se pegue al borde superior */
     color: #1a1a1a;
 }
 
@@ -628,3 +629,50 @@ body {
     from { top: -50px; opacity: 0; }
     to { top: 20px; opacity: 1; }
 }
+
+/* ESTILOS PARA BUSCAR AMIGOS */
+.users-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.user-card {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    background: #0066ff;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.user-info { flex: 1; }
+.user-name { font-weight: 600; color: #333; }
+.user-email { font-size: 12px; color: #888; }
+
+.btn-add {
+    background: #e6f2ff;
+    color: #0066ff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+.btn-add:hover { background: #d1e5ff; }
+

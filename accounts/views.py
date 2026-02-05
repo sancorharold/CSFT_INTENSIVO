@@ -1,11 +1,16 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from django.views import View
 from django.http import JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Friendship, Conversation, Message
 from django.db.models import Q, F
-from .models import Profile, Friendship, Conversation, Message
+from .models import Profile, Friendship, Conversation, Message, TypingStatus
+from django.contrib.auth.models import User
+from django.core.serializers.json import DjangoJSONEncoder
+import json
+from django.utils import timezone
+
 
 # Asegúrate de que el usuario esté logueado para acceder a esta vista
 class ProfileView(LoginRequiredMixin, View):
@@ -59,6 +64,41 @@ class DeclineFriendRequestView(LoginRequiredMixin, View):
         friend_request.delete()
         messages.info(request, "Solicitud de amistad rechazada.")
         return redirect('accounts:friends')
+
+class FindFriendsView(LoginRequiredMixin, View):
+    def get(self, request):
+        search_query = request.GET.get('q', '')
+        
+        # Obtenemos IDs de usuarios que YA son amigos o tienen solicitud pendiente (enviada o recibida)
+        # para EXCLUIRLOS de la búsqueda
+        busy_ids = Friendship.objects.filter(
+            (Q(from_user=request.user) | Q(to_user=request.user))
+        ).values_list('from_user_id', 'to_user_id')
+        
+        exclude_ids = {request.user.id}
+        for f_from, f_to in busy_ids:
+            exclude_ids.add(f_from)
+            exclude_ids.add(f_to)
+        
+        # Filtramos usuarios
+        users = User.objects.exclude(id__in=exclude_ids)
+        
+        if search_query:
+            users = users.filter(username__icontains=search_query)
+        
+        # Limitamos a 20 resultados para no saturar
+        users = users[:20]
+        
+        context = {'users': users, 'search_query': search_query}
+        return render(request, 'accounts/find_friends.html', context)
+
+class SendFriendRequestView(LoginRequiredMixin, View):
+    def post(self, request, user_id):
+        to_user = get_object_or_404(User, id=user_id)
+        # Creamos la solicitud
+        Friendship.objects.get_or_create(from_user=request.user, to_user=to_user, status=Friendship.Status.PENDING)
+        messages.success(request, f"Solicitud enviada a {to_user.username}")
+        return redirect('accounts:find_friends')
 
 class RemoveFriendView(LoginRequiredMixin, View):
     def post(self, request, friendship_id):
@@ -157,11 +197,55 @@ class IncrementPhotoCountView(LoginRequiredMixin, View):
 class ConversationsListView(LoginRequiredMixin, View):
     def get(self, request):
         # Obtenemos las conversaciones donde participa el usuario actual
-        conversations = request.user.conversations.all()
+        conversations = request.user.conversations.all().prefetch_related('messages', 'participants')
+        
+        chats_data = []
+        for conv in conversations:
+            # Identificar al otro usuario
+            other_user = conv.participants.exclude(id=request.user.id).first()
+            if not other_user:
+                continue
+            
+            # Obtener mensajes ordenados
+            msgs = conv.messages.all().order_by('id') # Asumiendo orden por ID cronológico
+            messages_list = []
+            unread = 0
+            
+            for m in msgs:
+                if not m.is_read and m.sender != request.user:
+                    unread += 1
+                messages_list.append({
+                    'from': 'me' if m.sender == request.user else 'other',
+                    'text': m.text,
+                    'image': m.image.url if m.image else None,
+                    'time': m.timestamp.strftime("%H:%M")
+                })
+            
+            # Verificar si el otro usuario está escribiendo (activo en los últimos 4 segundos)
+            is_typing = False
+            typing_status = TypingStatus.objects.filter(conversation=conv, user=other_user).first()
+            if typing_status and (timezone.now() - typing_status.timestamp).total_seconds() < 4:
+                is_typing = True
+
+            last_text = messages_list[-1]['text'] if messages_list and messages_list[-1]['text'] else ('[Imagen]' if messages_list and messages_list[-1]['image'] else "Sin mensajes")
+            chats_data.append({
+                'id': other_user.id, # ID del usuario para la URL
+                'name': other_user.username,
+                'avatar': other_user.username[0].upper(),
+                'unread': unread,
+                'messages': messages_list,
+                'last_msg': last_text,
+                'is_typing': is_typing
+            })
+
+        # Si la petición es AJAX (desde el JS), devolvemos solo los datos JSON
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse(chats_data, safe=False)
+
         context = {
-            'conversations': conversations
+            'chats_json': json.dumps(chats_data, cls=DjangoJSONEncoder)
         }
-        return render(request, 'accounts/conversations_list.html', context)
+        return render(request, 'accounts/mensajes.html', context)
 
 class ConversationDetailView(LoginRequiredMixin, View):
     def get(self, request, other_user_id):
@@ -182,12 +266,46 @@ class ConversationDetailView(LoginRequiredMixin, View):
             'messages_list': conversation.messages.all()
         }
         return render(request, 'accounts/conversation_detail.html', context)
-
+    
     def post(self, request, other_user_id):
         other_user = get_object_or_404(User, id=other_user_id)
         conversation = Conversation.objects.filter(participants=request.user).filter(participants=other_user).first()
-        text = request.POST.get('message_text')
+        
+        # Manejo de AJAX (JSON) para la nueva interfaz
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            text = ""
+            image = None
 
+            # Detectar si es JSON (texto) o Multipart (imagen)
+            if 'application/json' in request.content_type:
+                data = json.loads(request.body)
+                
+                # Manejar señal de "Escribiendo..."
+                if data.get('action') == 'typing':
+                    TypingStatus.objects.update_or_create(
+                        conversation=conversation, 
+                        user=request.user,
+                        defaults={'timestamp': timezone.now()}
+                    )
+                    return JsonResponse({'status': 'ok'})
+
+                text = data.get('text', "")
+            else:
+                text = request.POST.get('text', "")
+                image = request.FILES.get('image')
+
+            if conversation and (text or image):
+                Message.objects.create(
+                    conversation=conversation,
+                    sender=request.user,
+                    text=text,
+                    image=image
+                )
+                return JsonResponse({'status': 'ok'})
+            return JsonResponse({'status': 'error'}, status=400)
+
+        # Manejo tradicional (Formulario)
+        text = request.POST.get('message_text')
         if conversation and text:
             Message.objects.create(
                 conversation=conversation,

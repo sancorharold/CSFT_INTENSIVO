@@ -6,9 +6,11 @@
 {% block search %}{% endblock %}
 
 {% block head_extra %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <style>
     body { background-color: #f0f2f5; font-family: sans-serif; }
-    .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
+    /* 1. Aumentamos el margen superior a 80px para que el título no se tape con el header */
+    .container { max-width: 600px; margin: 80px auto 20px; padding: 0 15px; }
     .section-title { font-size: 1.5em; color: #333; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
     .friend-card, .request-card {
         display: flex;
@@ -55,11 +57,41 @@
     .btn-accept { background-color: #28a745; color: white; }
     .btn-decline { background-color: #dc3545; color: white; }
     .no-data { text-align: center; color: #777; padding: 20px; background: #fff; border-radius: 10px; }
+
+    /* 2. Estilos para el nuevo botón de agregar */
+    .add-friend-section {
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .btn-add-friend {
+        background-color: #0066ff;
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: background 0.2s;
+    }
+    .btn-add-friend:hover { background-color: #0052cc; }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container">
+    <!-- Botón para ir a la pantalla de búsqueda -->
+    <div class="add-friend-section">
+        <a href="{% url 'accounts:find_friends' %}" class="btn-add-friend">
+            <i class="fas fa-user-plus"></i> Buscar y Agregar Amigos
+        </a>
+    </div>
+
     <h1 class="section-title">Solicitudes Pendientes</h1>
     {% for req in pending_requests %}
         <div class="request-card">

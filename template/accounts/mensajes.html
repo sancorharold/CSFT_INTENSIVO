@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>ADAY - Mensajes</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="{% static 'CSS/mensajes.css' %}">
+<!-- FontAwesome para iconos si es necesario -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+<header id="main-header">
+    <a href="{% url 'accounts:profile' %}" style="color:white; text-decoration:none; margin-right:10px;">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    Mensajes
+</header>
+
+<!-- LISTA DE CHATS -->
+<div id="chat-list" class="active">
+    <div style="padding:20px; text-align:center; color:#777;">No tienes conversaciones aún.</div>
+</div>
+
+<!-- CHAT -->
+<div id="chat-view">
+  <header class="chat-header">
+    <span class="back" onclick="goBack()">←</span>
+    <div id="chat-name" style="font-weight:bold;"></div>
+    <small id="typing-indicator" style="display:none; color:#0a7cff; margin-left:10px; font-weight:normal;">Escribiendo...</small>
+  </header>
+
+  <div class="messages" id="messages"></div>
+
+  <div id="emoji-panel">
+    😀 😂 😍 😎 😭 🤯 🏔️ 📸 ❤️
+  </div>
+
+  <div class="input-bar">
+    <span class="icon" onclick="toggleEmojis()">😊</span>
+    <span class="icon" onclick="document.getElementById('imageInput').click()">📷</span>
+    <input type="file" id="imageInput" hidden accept="image/*" onchange="sendImage()">
+    <input type="text" id="textInput" placeholder="Escribe un mensaje...">
+    <span class="icon" onclick="sendText()" style="color:var(--blue);">➤</span>
+  </div>
+</div>
+
+<!-- LIGHTBOX (Visor de imágenes) -->
+<div id="lightbox" onclick="closeLightbox()">
+    <span class="close-lightbox">&times;</span>
+    <img id="lightbox-img" onclick="event.stopPropagation()">
+</div>
+
+<!-- Inyectamos los datos de Django al JS -->
+<script>
+    window.djangoChats = JSON.parse('{{ chats_json|escapejs }}');
+</script>
+<script src="{% static 'JS/mensajes.js' %}"></script>
+</body>
+</html>

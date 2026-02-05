@@ -9,6 +9,8 @@ urlpatterns = [
     
     # Aquí puedes agregar las URLs para las otras funcionalidades cuando las desarrolles
     path('friends/', views.FriendsView.as_view(), name='friends'),
+    path('friends/find/', views.FindFriendsView.as_view(), name='find_friends'),
+    path('friends/send/<int:user_id>/', views.SendFriendRequestView.as_view(), name='send_request'),
     path('profile/edit/', views.EditProfileView.as_view(), name='edit_profile'),
     path('achievements/', views.AchievementsView.as_view(), name='achievements'),
     path('increment-photo-count/', views.IncrementPhotoCountView.as_view(), name='increment_photo_count'),

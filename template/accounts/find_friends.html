@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscar Amigos</title>
+    <link rel="stylesheet" href="{% static 'CSS/profile.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <div class="header">
+        <a href="{% url 'accounts:friends' %}" style="color:white; text-decoration:none;">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+        <h1>Buscar Personas</h1>
+        <div style="width:20px"></div>
+    </div>
+
+    <div class="search-container">
+        <form method="GET" action="" class="search-box">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" name="q" placeholder="Buscar por nombre de usuario..." value="{{ search_query }}">
+            <button type="submit" class="btn btn-primary" style="padding: 8px 15px;">Buscar</button>
+        </form>
+    </div>
+
+    <div class="stats-section">
+        <h2 class="section-title">Resultados</h2>
+        
+        <div class="users-list">
+            {% for user in users %}
+            <div class="user-card">
+                <div class="user-avatar">
+                    {{ user.username|slice:":1"|upper }}
+                </div>
+                <div class="user-info">
+                    <div class="user-name">{{ user.username }}</div>
+                    <div class="user-email">Usuario de ADAY</div>
+                </div>
+                <form method="POST" action="{% url 'accounts:send_request' user.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-add">
+                        <i class="fas fa-user-plus"></i> Agregar
+                    </button>
+                </form>
+            </div>
+            {% empty %}
+            <div style="text-align:center; padding:20px; color:#666;">
+                No se encontraron usuarios disponibles.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</body>
+</html>

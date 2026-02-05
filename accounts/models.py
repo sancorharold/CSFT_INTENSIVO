@@ -56,9 +56,16 @@ class Message(models.Model):
     """Representa un mensaje individual dentro de una conversación."""
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
-    text = models.TextField()
+    text = models.TextField(blank=True, default="")
+    image = models.ImageField(upload_to='chat_images/', null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['timestamp']
+
+class TypingStatus(models.Model):
+    """Rastrea cuándo fue la última vez que un usuario escribió en un chat."""
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now=True)
