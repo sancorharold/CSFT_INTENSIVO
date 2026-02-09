@@ -17,50 +17,60 @@ document.addEventListener("keydown", (e) => {
 
 // --- 2. CARGA DINÁMICA (GEOLOCALIZACIÓN) ---
 document.addEventListener("DOMContentLoaded", () => {
-    const inputBusqueda = document.querySelector('input[name="q"]');
+    // Buscamos el interruptor de seguridad que pusimos en el HTML
+    const permitirCercanos = document.getElementById("js-permitir-cercanos");
 
+    // VALIDACIÓN DEFINITIVA: 
+    // Si no existe el interruptor o su valor es "false", detenemos el script.
+    if (!permitirCercanos || permitirCercanos.value === "false") {
+        console.log("🚀 Paginación o búsqueda activa. Geolocalización desactivada para proteger los datos de Django.");
+        return; 
+    }
+
+    // Solo si estamos en la página 1 limpia ejecutamos la carga por cercanía
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(pos => {
-            // No sobreescribir si el usuario ya buscó algo manualmente
-            if (inputBusqueda && inputBusqueda.value.trim() !== "") {
-                console.log("📍 Búsqueda activa detectada. No se cargan sitios cercanos.");
-                return; 
-            }
+            const container = document.querySelector(".cards");
+            if (!container) return;
 
+            console.log("📍 Cargando sitios cercanos por ubicación...");
+            
             fetch(`/turismo/sitios-cercanos/?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`)
                 .then(res => res.json())
                 .then(data => {
-                    const container = document.querySelector(".cards");
-                    if (!container) return;
-                    
-                    container.innerHTML = ""; 
-
-                    data.sitios.forEach(sitio => {
-                        const imgUrl = sitio.imagen_url || "https://placehold.co/600x400?text=Sin+Foto";
-                        
-                        const html = `
-                            <div class="card">
-                                <div class="heart" data-id="${sitio.id}">
-                                    <i class="fa-regular fa-heart"></i>
-                                </div>
-                                <img src="${imgUrl}" alt="${sitio.nombre}" 
-                                     onerror="this.src='https://placehold.co/600x400?text=Error+de+Carga'">
-                                <div class="card-body">
-                                    <div style="display:flex; justify-content:space-between;">
-                                        <span>${sitio.nombre}</span>
-                                        <span style="color:#0b78ff; font-size:0.9em;">${sitio.distancia_km} km</span>
-                                    </div>
-                                    <small style="color:#666;">${sitio.provincia} • ${sitio.categoria}</small>
-                                </div>
-                            </div>
-                        `;
-                        container.innerHTML += html;
-                    });
+                    if (data.sitios && data.sitios.length > 0) {
+                        container.innerHTML = ""; // Limpia los sitios genéricos
+                        data.sitios.forEach(sitio => {
+                            container.innerHTML += crearCardHtml(sitio);
+                        });
+                    }
                 })
                 .catch(err => console.error("Error cargando sitios cercanos:", err));
         });
     }
 });
+
+// Función auxiliar para renderizar las cards dinámicas
+function crearCardHtml(sitio) {
+    // Usamos el placeholder si la imagen_url viene vacía desde el servidor
+    const imgUrl = sitio.imagen_url || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='240'><rect width='100%' height='100%' fill='%23eaeaea'/><text x='50%' y='50%' font-size='18' text-anchor='middle' fill='%23666' dy='.3em'>Sin imagen</text></svg>";
+    
+    return `
+        <div class="card">
+            <div class="heart" data-id="${sitio.id}">
+                <i class="fa-regular fa-heart"></i>
+            </div>
+            <img src="${imgUrl}" alt="${sitio.nombre}" onerror="this.src='https://placehold.co/600x400?text=Error+Imagen'">
+            <div class="card-body">
+                <div style="display:flex; justify-content:space-between; align-items: center;">
+                    <h4 style="margin:0; font-size:1.1em;">${sitio.nombre}</h4>
+                    <span style="color:#0b78ff; font-weight:bold; font-size:0.9em;">${sitio.distancia_km} km</span>
+                </div>
+                <p style="margin: 5px 0 0; font-size: 0.85em; color: #aaa;">${sitio.provincia} • ${sitio.categoria}</p>
+            </div>
+        </div>`;
+}
+
 
 // --- 3. LÓGICA DE FAVORITOS (Delegación de eventos) ---
 document.addEventListener("click", function (e) {
@@ -84,6 +94,7 @@ document.addEventListener("click", function (e) {
                 mostrarToast(data.error);
                 return;
             }
+            // Cambiamos el icono según el estado
             heartBtn.innerHTML = data.favorito
                 ? '<i class="fa-solid fa-heart"></i>'
                 : '<i class="fa-regular fa-heart"></i>';
@@ -114,19 +125,30 @@ function getCookie(name) {
 }
 
 function mostrarToast(mensaje) {
+    // Eliminar toast anterior si existe
+    const oldToast = document.querySelector(".custom-toast");
+    if (oldToast) oldToast.remove();
+
     const toast = document.createElement("div");
+    toast.className = "custom-toast";
     toast.innerText = mensaje;
     toast.style.cssText = `
         position: fixed;
         bottom: 110px;
         left: 50%;
         transform: translateX(-50%);
-        background: #333;
+        background: rgba(0, 0, 0, 0.8);
         color: #fff;
-        padding: 10px 20px;
-        border-radius: 20px;
+        padding: 12px 24px;
+        border-radius: 30px;
         z-index: 9999;
+        font-size: 0.9em;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        transition: opacity 0.3s ease;
     `;
     document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 2000);
+    setTimeout(() => {
+        toast.style.opacity = "0";
+        setTimeout(() => toast.remove(), 3000);
+    }, 2000);
 }

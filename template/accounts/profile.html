@@ -1,33 +1,20 @@
+{% extends "home.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADAY - Perfil de {{ user.username }}</title>
-    <!-- Iconos de Font Awesome (necesarios para la barra de navegación) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Estilos de la barra de navegación (reutilizados de home) -->
-    <link rel="stylesheet" href="{% static 'CSS/home.css' %}">
-    <!-- Estilos propios de la página de perfil --> 
+
+{% block title %}ADAY - Perfil de {{ user.username }}{% endblock %}
+
+{% block head_extra %}
     <link rel="stylesheet" href="{% static 'css/profile.css' %}">
-</head>
-<body data-increment-photo-url="{% url 'accounts:increment_photo_count' %}">
-    <!-- Header -->
-    <div class="header">
-        <h1>ADAY</h1>
-        <div class="menu-icon">☰</div>
-    </div>
+{% endblock %}
 
-    <!-- Search Bar (Placeholder) -->
-    <div class="search-container">
-        <div class="search-box">
-            <span class="search-icon">🔍</span>
-            <input type="text" placeholder="Buscar destinos...">
-        </div>
-    </div>
+{# Sobrescribimos el título de la barra superior para que diga ADAY #}
+{% block top_title %}ADAY{% endblock %}
 
-    <!-- Profile Section -->
+{# Quitamos el buscador del home en el perfil si así lo prefieres #}
+{% block search %}{% endblock %}
+
+{% block content %}
+<div class="profile-container" style="padding-bottom: 80px;">
     <div class="profile-section">
         <div class="profile-avatar frame-{{ user.profile.marco }}">
             {% if user.profile.foto_perfil %}
@@ -47,75 +34,38 @@
         <div class="profile-email">{{ user.email }}</div>
         <div class="profile-buttons">
             <a href="{% url 'accounts:friends' %}" class="btn btn-primary">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-                </svg>
-                Amigos
+                <i class="fas fa-users"></i> Amigos
             </a>
-            <a href="{% url 'accounts:messages_list' %}" class="btn btn-primary">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/>
-                </svg>
-                Mensajes
+            <a href="{% url 'accounts:messages_list' %}" class="btn-messages">
+                <i class="fas fa-envelope"></i> Mensajes
             </a>
         </div>
     </div>
 
-    <!-- Stats Section -->
     <div class="stats-section">
         <div class="section-title">Mis Estadísticas</div>
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-icon">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                    </svg>
-                </div>
-                <div class="stat-info">
-                    <div class="stat-number">{{ profile.lugares_visitados|default:0 }}</div>
-                    <div class="stat-label">Lugares Visitados</div>
-                </div>
+                <div class="stat-number">{{ profile.lugares_visitados|default:0 }}</div>
+                <div class="stat-label">Lugares Visitados</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-                    </svg>
-                </div>
-                <div class="stat-info">
-                    <div class="stat-number">{{ profile.fotos_tomadas|default:0 }}</div>
-                    <div class="stat-label">Fotos Tomadas</div>
-                </div>
+                <div class="stat-number">{{ profile.fotos_tomadas|default:0 }}</div>
+                <div class="stat-label">Fotos Tomadas</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-                    </svg>
-                </div>
-                <div class="stat-info">
-                    <div class="stat-number">{{ amigos_count|default:0 }}</div>
-                    <div class="stat-label">Amigos</div>
-                </div>
+                <div class="stat-number">{{ amigos_count|default:0 }}</div>
+                <div class="stat-label">Amigos</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
-                    </svg>
-                </div>
-                <div class="stat-info">
-                    <div class="stat-number">{{ profile.dias_viajando|default:0 }}</div>
-                    <div class="stat-label">Días Viajando</div>
-                </div>
+                <div class="stat-number">{{ profile.dias_viajando|default:0 }}</div>
+                <div class="stat-label">Días Viajando</div>
             </div>
         </div>
     </div>
 
-    <!-- Achievements Section (Hardcoded for now) -->
     <div class="achievements-section">
         <div class="section-title">Logros Desbloqueados</div>
-        {# Aquí iría un bucle for para los logros del usuario #}
         <div class="achievement-card">
             <div class="achievement-icon">☀️</div>
             <div class="achievement-info">
@@ -132,113 +82,45 @@
         </div>
     </div>
 
-    <!-- Recent Trips Section (Hardcoded for now) -->
-    <div class="trips-section">
-        <div class="section-title">Viajes Recientes</div>
-        {# Aquí iría un bucle for para los viajes recientes del usuario #}
-        <div class="trip-card">
-            <img src="https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=200&h=200&fit=crop" alt="Machu Picchu" class="trip-image">
-            <div class="trip-info">
-                <div class="trip-name">Machu Picchu</div>
-                <div class="trip-time">Hace 2 semanas</div>
-            </div>
-            <span class="trip-location-icon">📍</span>
-        </div>
-    </div>
-
-    <!-- Configuration Section -->
     <div class="config-section">
-        <div class="section-title" style="padding: 20px 20px 0;">Configuración</div>
-        <a href="#" class="config-item"> {# {% url 'accounts:preferences' %} #}
-            <span class="config-icon">⚙️</span>
-            <span class="config-text">Preferencias de la cuenta</span>
-        </a>
+        <div class="section-title">Configuración</div>
         <a href="{% url 'accounts:edit_profile' %}" class="config-item">
             <span class="config-icon">👤</span>
             <span class="config-text">Editar perfil</span>
         </a>
-        <a href="{% url 'accounts:achievements' %}" class="config-item">
-            <span class="config-icon">🏆</span>
-            <span class="config-text">Ver todos mis logros</span>
-        </a>
         <a href="{% url 'core:logout' %}" class="config-item">
-            <div class="logout-text">Cerrar sesión</div>
+            <div class="logout-text" style="color: #dc3545; font-weight: bold;">Cerrar sesión</div>
         </a>
     </div>
+</div>
 
-    <!-- Floating Action Button -->
-    <div class="fab-camera" id="fabCamera">
-        <svg viewBox="0 0 24 24">
-            <path d="M12 15.2c-1.92 0-3.5-1.58-3.5-3.5s1.58-3.5 3.5-3.5 3.5 1.58 3.5 3.5-1.58 3.5-3.5 3.5zM9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9z"/>
-        </svg>
-    </div>
+<div class="fab-camera" id="fabCamera">
+    <svg viewBox="0 0 24 24"><path d="M12 15.2c-1.92 0-3.5-1.58-3.5-3.5s1.58-3.5 3.5-3.5 3.5 1.58 3.5 3.5-1.58 3.5-3.5 3.5zM9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9z"/></svg>
+</div>
 
-    <!-- Camera Modal -->
-    <div class="modal-overlay" id="cameraModal">
-        <div class="camera-modal">
-            <div class="modal-header">
-                <h2 class="modal-title">Cámara</h2>
-                <button class="close-modal" id="closeModal">&times;</button>
-            </div>
-            
-            <div class="camera-preview">
-                <video id="videoElement" autoplay playsinline></video>
-                <img id="capturedImage" alt="Foto capturada">
-                <span class="camera-placeholder" id="cameraPlaceholder">Selecciona una opción</span>
-            </div>
-
-            <div class="capture-btn" id="captureBtn"></div>
-
-            <div class="camera-controls" id="cameraControls">
-                <button class="camera-btn camera-btn-primary" id="activateCamera">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M12 15.2c-1.92 0-3.5-1.58-3.5-3.5s1.58-3.5 3.5-3.5 3.5 1.58 3.5 3.5-1.58 3.5-3.5 3.5zM9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9z"/>
-                    </svg>
-                    Activar Cámara
-                </button>
-                <button class="camera-btn camera-btn-secondary" id="uploadPhoto">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/>
-                    </svg>
-                    Subir Foto
-                </button>
-            </div>
-
-            <div class="action-buttons" id="actionButtons">
-                <button class="camera-btn btn-retake" id="retakeBtn">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
-                    </svg>
-                    Tomar otra
-                </button>
-                <button class="camera-btn btn-save" id="saveBtn">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                    </svg>
-                    Guardar
-                </button>
-            </div>
-
-            <input type="file" id="fileInput" accept="image/*">
+<div class="modal-overlay" id="cameraModal">
+    <div class="camera-modal">
+        <div class="modal-header">
+            <h2 class="modal-title">Cámara</h2>
+            <button class="close-modal" id="closeModal">&times;</button>
         </div>
+        <div class="camera-preview">
+            <video id="videoElement" autoplay playsinline></video>
+            <img id="capturedImage" alt="Foto capturada">
+            <span class="camera-placeholder" id="cameraPlaceholder">Selecciona una opción</span>
+        </div>
+        <div class="capture-btn" id="captureBtn"></div>
+        <div class="camera-controls" id="cameraControls">
+            <button class="camera-btn camera-btn-primary" id="activateCamera">Activar Cámara</button>
+            <button class="camera-btn camera-btn-secondary" id="uploadPhoto">Subir Foto</button>
+        </div>
+        <div class="action-buttons" id="actionButtons" style="display:none;">
+            <button class="camera-btn btn-retake" id="retakeBtn">Tomar otra</button>
+            <button class="camera-btn btn-save" id="saveBtn">Guardar</button>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" style="display:none;">
     </div>
+</div>
 
-    <!-- BOTTOM NAV (Copiado de home.html para consistencia) -->
-    <div class="bottom-nav" style="padding-bottom: 0;">
-        <a href="{% url 'core:home' %}">
-            <i class="fa-regular fa-compass"></i> Explorar
-        </a>
-        <a href="{% url 'core:map' %}">
-            <i class="fa-regular fa-map"></i> Mapa
-        </a>
-        <a href="{% url 'core:favoritos' %}">
-            <i class="fa-regular fa-heart"></i> Favoritos
-        </a>
-        <a href="{% url 'accounts:profile' %}" class="active">
-            <i class="fa-regular fa-user"></i> Perfil
-        </a>
-    </div>
-
-    <script src="{% static 'js/profile.js' %}"></script>
-</body>
-</html>
+<script src="{% static 'js/profile.js' %}"></script>
+{% endblock %}

@@ -119,37 +119,50 @@
         <p class="no-data">No tienes solicitudes pendientes.</p>
     {% endfor %}
 
-    <h1 class="section-title" style="margin-top: 30px;">Mis Amigos</h1>
-    {% for friend_rel in friends_list %}
-        <div class="friend-card">
-            {% if friend_rel.from_user == user %}
-                {% if friend_rel.to_user.profile.foto_perfil %}
-                    <img src="{{ friend_rel.to_user.profile.foto_perfil.url }}" alt="{{ friend_rel.to_user.username }}" class="friend-avatar">
-                {% else %}
-                    <div class="avatar-placeholder">👤</div>
-                {% endif %}
+    
+<h1 class="section-title" style="margin-top: 30px;">Mis Amigos</h1>
+{% for friend_rel in friends_list %}
+    <div class="friend-card">
+        {# Usamos un IF para decidir qué usuario mostrar #}
+        {% if friend_rel.from_user == request.user %}
+            {# El amigo es el que recibió la solicitud (to_user) #}
+            {% if friend_rel.to_user.profile.foto_perfil %}
+                <img src="{{ friend_rel.to_user.profile.foto_perfil.url }}" class="friend-avatar">
             {% else %}
-                {% if friend_rel.from_user.profile.foto_perfil %}
-                    <img src="{{ friend_rel.from_user.profile.foto_perfil.url }}" alt="{{ friend_rel.from_user.username }}" class="friend-avatar">
-                {% else %}
-                    <div class="avatar-placeholder">👤</div>
-                {% endif %}
+                <div class="avatar-placeholder">👤</div>
             {% endif %}
+            
             <div class="friend-info">
-                {% with other_user=friend_rel.to_user|yesno:friend_rel.from_user %}
-                <div class="friend-name">{{ other_user.username }}</div>
-                {% endwith %}
+                <div class="friend-name">{{ friend_rel.to_user.username }}</div>
             </div>
+
             <div class="friend-actions">
-                <a href="{% url 'accounts:conversation_detail' friend_rel.to_user.id|yesno:friend_rel.from_user.id %}" class="btn-message">Mensaje</a>
-                <form action="{% url 'accounts:remove_friend' friend_rel.id %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="btn-decline btn-remove" title="Eliminar amigo">X</button>
-                </form>
+                <a href="{% url 'accounts:conversation_detail' friend_rel.to_user.id %}" class="btn-message">Mensaje</a>
+        {% else %}
+            {# El amigo es el que envió la solicitud (from_user) #}
+            {% if friend_rel.from_user.profile.foto_perfil %}
+                <img src="{{ friend_rel.from_user.profile.foto_perfil.url }}" class="friend-avatar">
+            {% else %}
+                <div class="avatar-placeholder">👤</div>
+            {% endif %}
+            
+            <div class="friend-info">
+                <div class="friend-name">{{ friend_rel.from_user.username }}</div>
             </div>
-        </div>
-    {% empty %}
-        <p class="no-data">Aún no tienes amigos. ¡Busca a alguien!</p>
-    {% endfor %}
+
+            <div class="friend-actions">
+                <a href="{% url 'accounts:conversation_detail' friend_rel.from_user.id %}" class="btn-message">Mensaje</a>
+        {% endif %}
+
+            {# Este botón de eliminar es común para ambos casos #}
+            <form action="{% url 'accounts:remove_friend' friend_rel.id %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-decline btn-remove" title="Eliminar amigo">X</button>
+            </form>
+            </div> 
+    </div>
+{% empty %}
+    <p class="no-data">Aún no tienes amigos. ¡Busca a alguien!</p>
+{% endfor %}
 </div>
 {% endblock %}

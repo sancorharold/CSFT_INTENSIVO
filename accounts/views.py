@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from django.core.serializers.json import DjangoJSONEncoder
 import json
 from django.utils import timezone
+from django.db.models import Count
 
 
 # Asegúrate de que el usuario esté logueado para acceder a esta vista
@@ -248,11 +249,19 @@ class ConversationsListView(LoginRequiredMixin, View):
         return render(request, 'accounts/mensajes.html', context)
 
 class ConversationDetailView(LoginRequiredMixin, View):
+    def get_conversation(self, user1, user2):
+        """Función auxiliar para encontrar la conversación exacta entre dos personas"""
+        return Conversation.objects.annotate(num_participants=Count('participants'))\
+            .filter(num_participants=2)\
+            .filter(participants=user1)\
+            .filter(participants=user2).first()
+
     def get(self, request, other_user_id):
         other_user = get_object_or_404(User, id=other_user_id)
         
-        # Busca una conversación existente o crea una nueva
-        conversation = Conversation.objects.filter(participants=request.user).filter(participants=other_user).first()
+        # Usamos la función auxiliar para buscar la conversación
+        conversation = self.get_conversation(request.user, other_user)
+        
         if not conversation:
             conversation = Conversation.objects.create()
             conversation.participants.add(request.user, other_user)
@@ -269,18 +278,23 @@ class ConversationDetailView(LoginRequiredMixin, View):
     
     def post(self, request, other_user_id):
         other_user = get_object_or_404(User, id=other_user_id)
-        conversation = Conversation.objects.filter(participants=request.user).filter(participants=other_user).first()
         
-        # Manejo de AJAX (JSON) para la nueva interfaz
+        # IMPORTANTE: Usamos la misma lógica de búsqueda que en el GET
+        conversation = self.get_conversation(request.user, other_user)
+        
+        # Si por alguna razón no existe al intentar enviar (caso raro), la creamos
+        if not conversation:
+            conversation = Conversation.objects.create()
+            conversation.participants.add(request.user, other_user)
+        
+        # Manejo de AJAX (JSON) para la interfaz de mensajes
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             text = ""
             image = None
 
-            # Detectar si es JSON (texto) o Multipart (imagen)
             if 'application/json' in request.content_type:
                 data = json.loads(request.body)
                 
-                # Manejar señal de "Escribiendo..."
                 if data.get('action') == 'typing':
                     TypingStatus.objects.update_or_create(
                         conversation=conversation, 
@@ -294,7 +308,7 @@ class ConversationDetailView(LoginRequiredMixin, View):
                 text = request.POST.get('text', "")
                 image = request.FILES.get('image')
 
-            if conversation and (text or image):
+            if text or image:
                 Message.objects.create(
                     conversation=conversation,
                     sender=request.user,
@@ -304,9 +318,9 @@ class ConversationDetailView(LoginRequiredMixin, View):
                 return JsonResponse({'status': 'ok'})
             return JsonResponse({'status': 'error'}, status=400)
 
-        # Manejo tradicional (Formulario)
+        # Manejo tradicional (Formulario desde la sección de Amigos)
         text = request.POST.get('message_text')
-        if conversation and text:
+        if text:
             Message.objects.create(
                 conversation=conversation,
                 sender=request.user,

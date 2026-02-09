@@ -88,6 +88,14 @@ class SitioDetalleView(View):
 
 class SitiosCercanosView(View):
     def get(self, request):
+        # --- PROTECCIÓN PARA PAGINACIÓN ---
+        # Revisamos si la petición viene de una URL que ya tiene paginación (?page=...)
+        referer = request.META.get('HTTP_REFERER', '')
+        if 'page=' in referer or 'q=' in referer:
+            # Si el usuario está en la página 2, 3 o buscando, devolvemos lista vacía
+            # para que el JS no sobrescriba lo que Django ya pintó.
+            return JsonResponse({"total": 0, "sitios": []})
+
         try:
             lat = float(request.GET.get("lat"))
             lon = float(request.GET.get("lon"))
@@ -107,15 +115,17 @@ class SitiosCercanosView(View):
                 "distancia_km": round(float(distancia), 2),
                 "lat": sitio.latitud,
                 "lon": sitio.longitud,
-                "imagen_url": sitio.imagen_referencia.url if sitio.imagen_referencia else "",
+                # Corregimos la URL de imagen para que siempre sea válida
+                "imagen_url": sitio.imagen_referencia.url if sitio.imagen_referencia else "/static/images/default.jpg",
             })
 
+        # Ordenar por distancia
         resultados.sort(key=lambda x: x["distancia_km"])
+        
         return JsonResponse({
             "total": len(resultados),
-            "sitios": resultados[:5]
+            "sitios": resultados[:6]  # Solo devolvemos los 6 más cercanos
         })
-
 # --- VISTA DE IA (CORREGIDA) ---
 
 @method_decorator(csrf_exempt, name='dispatch')
