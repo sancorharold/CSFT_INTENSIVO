@@ -1,5 +1,4 @@
 <div align="center">
-
 <img src="https://img.shields.io/badge/Django-092E20?logo=django&logoColor=white"/>
 <img src="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white"/>
 <img src="https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black"/>
@@ -7,7 +6,8 @@
 <img src="https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white"/>
 <img src="https://img.shields.io/badge/OpenCV-5C3EE8?logo=opencv&logoColor=white"/>
 </div>
-# Proyecto de Turismo Inteligente con Django e IA
+
+## Proyecto de Turismo Inteligente con Django e IA
 
 Una aplicación web desarrollada con Django que combina inteligencia artificial y geolocalización para mejorar la experiencia turística. Permite a los usuarios identificar lugares turísticos a través de fotos, recibir recomendaciones personalizadas, evaluar el nivel de riesgo de una zona y conectar con otros viajeros.
 Para aclarar los datos que se presenten en este projecto solamente enstan ubicados a zonas de ecuador debido al tiempo de creación
